@@ -1,4 +1,4 @@
-package net.mtuomiko;
+package net.mtuomiko.traffichistory.api;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
