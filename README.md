@@ -5,10 +5,18 @@
 Notes for multi-stage native build without local GraalVM installation
 
 * Build: `docker build -f docker/Dockerfile.multistage -t traffichistory-native .`
-* Create only the builder image for debugging contents: `docker build -f docker/Dockerfile.multistage.builder -t traffichistory-native-builder .`
+* Create only the builder image for debugging
+  contents: `docker build -f docker/Dockerfile.multistage.builder -t traffichistory-native-builder .`
 * Debug builder contents: `docker run --rm -it --entrypoint /bin/bash traffichistory-native-builder`
+* Run native image: `docker run --rm -it -p 8080:8080 traffichistory-native`
 
 At least `Dockerfile.multistage` has a manually defined folder structure so update them as project structure develops.
+
+## Datastore emulation
+
+Google Datastore can be emulated locally with Cloud SDK. You can also run a docker instance using, for example:
+
+`docker run -it --name dev-datastore -p 8000:8000 google/cloud-sdk gcloud --project=<insertProjectIdHere> beta emulators datastore start --host-port 0.0.0.0:8000`
 
 ## Running the application in dev mode
 
