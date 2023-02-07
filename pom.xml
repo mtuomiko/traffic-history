@@ -74,10 +74,11 @@
                 <version>${project.version}</version>
             </dependency>
 
-<!--            <dependency>-->
-<!--                <groupId>javax.ws.rs</groupId>-->
-<!--                <artifactId>javax.ws.rs-api</artifactId>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.6.9</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -149,6 +150,28 @@
                             <id>make-index</id>
                             <goals>
                                 <goal>jandex</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- code quality -->
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>4.7.3.0</version>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                    </configuration>
+                    <executions>
+                        <!-- doesn't seem to be binding to verify phase? -->
+                        <execution>
+                            <id>check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
                             </goals>
                         </execution>
                     </executions>

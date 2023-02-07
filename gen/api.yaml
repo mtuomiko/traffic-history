@@ -5,14 +5,14 @@ info:
     Traffic History OpenAPI 3.0 specification.
   version: 0.0.1a
 servers:
-  - url: https://petstore3.swagger.io/api/v3
+  - url: /
 tags:
   - name: station
-    description: Station and station traffic volume
+    description: Traffic measuring station and station traffic volume data
 paths:
   /station:
     get:
-      tags: [station]
+      tags: [ station ]
       summary: Get all stations
       description: List stations
       operationId: getAllStations
@@ -23,6 +23,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StationsResponse'
+
+#  /station/{stationId}:
+#    get:
+#      tags: [ station ]
+#      summary: Get hourly traffic volume on single station
+#      description: |-
+#        Returns single station hourly traffic volumes on selected days. Can select maximum 7 days on single request.
+#      operationId: getStationTraffic
+
 components:
   schemas:
     StationsResponse:

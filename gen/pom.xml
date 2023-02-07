@@ -16,8 +16,6 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>1.6.9</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -33,7 +31,7 @@
             <artifactId>javax.annotation-api</artifactId>
             <version>1.3.2</version>
         </dependency>
-        <dependency><!-- jboss version of the spec already used as quarkus dependency so using that -->
+        <dependency><!-- jboss version of the spec already used as a quarkus dependency so using that -->
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
             <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
         </dependency>
@@ -70,6 +68,7 @@
                             <generatorName>jaxrs-spec</generatorName>
                             <apiPackage>net.mtuomiko.traffichistory.gen.api</apiPackage>
                             <modelPackage>net.mtuomiko.traffichistory.gen.model</modelPackage>
+                            <ignoreFileOverride>${project.basedir}/.openapi-generator-ignore</ignoreFileOverride>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
                                 <!--                                <sourceFolder>src/gen/java/main</sourceFolder>-->

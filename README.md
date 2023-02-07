@@ -32,7 +32,7 @@ Docker commands for multi-stage native build without local GraalVM installation:
 * Create only the builder image for debugging
   contents: `docker build -f docker/Dockerfile.multistage.builder -t traffichistory-native-builder .`
 * Debug builder contents: `docker run --rm -it --entrypoint /bin/bash traffichistory-native-builder`
-* Run native image: `docker run --rm -it -p 8080:8080 traffichistory-native`
+* Run native image against local datastore: `docker run --rm -it --env-file ./docker/.env.local -p 8080:8080 traffichistory-native`
 
 `Dockerfile.multistage` has manually defined folder copy commands depending on project structure so update them as
 project structure develops.
@@ -47,6 +47,12 @@ started):
 
 * run using suspend flag: `.\mvnw.cmd quarkus:dev -Dsuspend`
 * connect JVM remote debugger to the default port 5005
+
+### Static quality checks
+
+Spotbugs doesn't appear to be binding to Maven verify phase despite execution declaration in root [pom.xml](pom.xml). Run manually.
+
+* For example: `./mvnw spotbugs:check`
 
 ## Datastore emulation
 
