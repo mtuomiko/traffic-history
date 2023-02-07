@@ -1,4 +1,6 @@
-import net.mtuomiko.traffichistory.StationDao;
+package net.mtuomiko.dao;
+
+import net.mtuomiko.traffichistory.dao.StationDao;
 
 import org.junit.jupiter.api.Test;
 

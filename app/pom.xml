@@ -18,7 +18,19 @@
     <dependencies>
         <dependency>
             <groupId>net.mtuomiko.traffichistory</groupId>
+            <artifactId>gen</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.mtuomiko.traffichistory</groupId>
             <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.mtuomiko.traffichistory</groupId>
+            <artifactId>svc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.mtuomiko.traffichistory</groupId>
+            <artifactId>dao</artifactId>
         </dependency>
 
         <dependency>

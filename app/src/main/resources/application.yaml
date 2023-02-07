@@ -1,3 +1,6 @@
 traffichistory:
-  google:
-    project-id: traffic-history-376700
+  gcloud:
+    project-id: 'traffic-history-376700'
+    datastore:
+      auth: 'default'
+      host: ''

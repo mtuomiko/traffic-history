@@ -1,8 +1,32 @@
 # traffichistory
 
+This repository is related to my Degree Programme in Business Information Systems thesis work at the Oulu University of
+Applied Sciences. The repository contains a Quarkus framework based application which provides a simple RESTful API
+about road traffic volume history at measurement points in Finland. The original datasource is
+the [TMS data](https://www.digitraffic.fi/en/road-traffic/lam/) ([LAM-tiedot](https://www.digitraffic.fi/tieliikenne/lam/)
+in Finnish) provided by Fintraffic / digitraffic.fi, license CC 4.0 BY.
+
+## Background
+
+Motivation for the app was to explore relatively new possibilities to implement a serverless API on some cloud provider
+using Java-based technologies. Serverless in this context means that there is no dedicated instance and the service can
+scale to zero if possible. The selected content (traffic data history) / provided service of the API is not really ideal
+for serverless approach. More unpredictable or periodic workloads would be a better fit. But for this exploratory work,
+it will suffice.
+
+Serverless approach meant that low startup time would be essential to keep good response times to requests even if the
+instance would start from scratch. This lead towards Ahead of Time compilation focused networks called Micronaut and
+Quarkus. Ultimately, Quarkus and Google Cloud Run was selected for the implementation.
+
 ## Containerized
 
-Notes for multi-stage native build without local GraalVM installation
+### Native image
+
+Quarkus supports GraalVM Native Image which can be used to create native binaries. As the native binaries depend on the
+host OS, the repository contains also multistage container build that will produce 64-bit Linux compatible containers (
+which are the probable environment in which the containers will be ultimately run on).
+
+Docker commands for multi-stage native build without local GraalVM installation:
 
 * Build: `docker build -f docker/Dockerfile.multistage -t traffichistory-native .`
 * Create only the builder image for debugging
@@ -10,13 +34,39 @@ Notes for multi-stage native build without local GraalVM installation
 * Debug builder contents: `docker run --rm -it --entrypoint /bin/bash traffichistory-native-builder`
 * Run native image: `docker run --rm -it -p 8080:8080 traffichistory-native`
 
-At least `Dockerfile.multistage` has a manually defined folder structure so update them as project structure develops.
+`Dockerfile.multistage` has manually defined folder copy commands depending on project structure so update them as
+project structure develops.
+
+## Development
+
+Debugging with Quarkus Dev mode can be done using Remote JVM debugging. For IntelliJ add a "Remote JVM Debug" run
+configuration.
+
+If you need to debug initialization behavior (meaning that it's too late to start debugging after the app has already
+started):
+
+* run using suspend flag: `.\mvnw.cmd quarkus:dev -Dsuspend`
+* connect JVM remote debugger to the default port 5005
 
 ## Datastore emulation
 
 Google Datastore can be emulated locally with Cloud SDK. You can also run a docker instance using, for example:
 
 `docker run -it --name dev-datastore -p 8000:8000 google/cloud-sdk gcloud --project=<insertProjectIdHere> beta emulators datastore start --host-port 0.0.0.0:8000`
+
+## Environment variables
+
+See configuration files at [app/src/main/resources](app/src/main/resources)
+
+Following variables are not explicitly configured, they originate from the configuration files based
+on [Quarkus configuration handling](https://quarkus.io/guides/config-reference)
+and [Microprofile mapping rules](https://github.com/eclipse/microprofile-config/blob/master/spec/src/main/asciidoc/configsources.asciidoc#environment-variables-mapping-rules)
+. They are only listed here for convenience and documentation.
+
+| Environment variable                   | Description                                                                                                                                                                                                                        | Default   | Example                            |
+|----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------------|
+| `TRAFFICHISTORY_GCLOUD_DATASTORE_AUTH` | Use Datastore with local (value `none`) or Application Default Credential approach (value `default`). `default` assumes app to be running in a Google Cloud environment where it has received necessary credentials automatically. | `default` | `none`                             |
+| `TRAFFICHISTORY_GCLOUD_DATASTORE_HOST` | Local datastore instance host. Will not be used when running using Application Default Credentials                                                                                                                                 | ''        | `http://host.docker.internal:8000` |
 
 ## Running the application in dev mode
 

@@ -9,7 +9,9 @@
     <version>${revision}</version>
     <modules>
         <module>app</module>
+        <module>gen</module>
         <module>api</module>
+        <module>svc</module>
         <module>dao</module>
     </modules>
     <properties>
@@ -37,13 +39,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>${quarkus.platform.group-id}</groupId>-->
-<!--                <artifactId>${quarkus.platform.gcloud.services.id}</artifactId>-->
-<!--                <version>${quarkus.platform.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
@@ -51,13 +46,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>io.quarkus.platform</groupId>-->
-<!--                <artifactId>quarkus-google-cloud-services-bom</artifactId>-->
-<!--                <version>2.15.3.Final</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
 
             <!-- subprojects -->
             <dependency>
@@ -67,7 +55,17 @@
             </dependency>
             <dependency>
                 <groupId>net.mtuomiko.traffichistory</groupId>
+                <artifactId>gen</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.mtuomiko.traffichistory</groupId>
                 <artifactId>api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.mtuomiko.traffichistory</groupId>
+                <artifactId>svc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -75,6 +73,11 @@
                 <artifactId>dao</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+<!--            <dependency>-->
+<!--                <groupId>javax.ws.rs</groupId>-->
+<!--                <artifactId>javax.ws.rs-api</artifactId>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
     <dependencies>

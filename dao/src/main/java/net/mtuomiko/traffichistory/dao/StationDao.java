@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
@@ -14,7 +14,7 @@ public class StationDao {
 
     public StationDao(Datastore datastore) {
         this.datastore = datastore;
-        this.keyFactory = datastore.newKeyFactory();
+        this.keyFactory = datastore.newKeyFactory().setKind(Station.KIND);
     }
 
     public void tryout() {

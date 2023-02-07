@@ -1,22 +1,30 @@
 package net.mtuomiko.traffichistory.api;
 
-import net.mtuomiko.traffichistory.StationDao;
+import net.mtuomiko.traffichistory.gen.api.StationApi;
+import net.mtuomiko.traffichistory.gen.model.Station;
+import net.mtuomiko.traffichistory.gen.model.StationsResponse;
+import net.mtuomiko.traffichistory.svc.StationService;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import java.util.stream.IntStream;
 
-@Path("/station")
-public class StationResource {
+public class StationResource implements StationApi {
 
-    private final StationDao stationDao;
+    private final StationService stationService;
 
-    public StationResource(StationDao stationDao) {
-        this.stationDao = stationDao;
+    public StationResource(StationService stationDao) {
+        this.stationService = stationDao;
     }
 
-    @GET
-    public StationResponse getMessage() {
-        var message = stationDao.getDescription();
-        return new StationResponse(message);
+    @Override
+    public StationsResponse getAllStations() {
+        var message = stationService.getDescription();
+        var stations = IntStream.range(1, 5)
+                .mapToObj(num -> createStation(message, num, 25d, 60d))
+                .toList();
+        return new StationsResponse().stations(stations);
+    }
+
+    private Station createStation(String name, int tmsNumber, double latitude, double longitude) {
+        return new Station().name(name).tmsNumber(tmsNumber).latitude(latitude).longitude(longitude);
     }
 }

@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: Traffic History API
+  description: |-
+    Traffic History OpenAPI 3.0 specification.
+  version: 0.0.1a
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: station
+    description: Station and station traffic volume
+paths:
+  /station:
+    get:
+      tags: [station]
+      summary: Get all stations
+      description: List stations
+      operationId: getAllStations
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationsResponse'
+components:
+  schemas:
+    StationsResponse:
+      type: object
+      properties:
+        stations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Station'
+    Station:
+      type: object
+      properties:
+        name:
+          type: string
+        tmsNumber:
+          type: integer
+          format: int32
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
