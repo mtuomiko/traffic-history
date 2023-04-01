@@ -14,10 +14,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.mtuomiko.traffichistory</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-datastore</artifactId>

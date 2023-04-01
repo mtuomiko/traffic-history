@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory.dao;
+package net.mtuomiko.traffichistory.common;
 
 public record Station(
         String name,
@@ -6,6 +6,4 @@ public record Station(
         double latitude,
         double longitude
 ) {
-    public static final String KIND = "Station";
-
 }

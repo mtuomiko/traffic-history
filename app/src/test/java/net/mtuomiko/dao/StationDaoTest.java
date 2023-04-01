@@ -17,6 +17,6 @@ public class StationDaoTest {
 
     @Test
     public void testDatastore() {
-        stationDao.tryout();
+        stationDao.save();
     }
 }

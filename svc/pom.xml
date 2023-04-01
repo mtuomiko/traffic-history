@@ -15,6 +15,10 @@
     <dependencies>
         <dependency>
             <groupId>net.mtuomiko.traffichistory</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.mtuomiko.traffichistory</groupId>
             <artifactId>dao</artifactId>
         </dependency>
 

@@ -2,8 +2,16 @@ package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+
+import net.mtuomiko.traffichistory.common.Station;
+
+import org.apache.commons.collections4.IteratorUtils;
+
+import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.inject.Singleton;
 
@@ -14,33 +22,33 @@ public class StationDao {
 
     public StationDao(Datastore datastore) {
         this.datastore = datastore;
-        this.keyFactory = datastore.newKeyFactory().setKind(Station.KIND);
+        this.keyFactory = datastore.newKeyFactory().setKind(StationEntity.KIND);
     }
 
-    public void tryout() {
-        // The kind for the new entity
-        String kind = "Task";
-        String property = "description";
-        // The name/ID for the new entity
-        String name = "sampletask1";
-        // The Cloud Datastore key for the new entity
-        Key taskKey = datastore.newKeyFactory().setKind(kind).newKey(name);
+    public void save() {
+        var stations = IntStream.range(0, 4)
+                .mapToObj(num ->
+                        new StationEntity(String.format("station_%d", num), num, 24.0 + num, 61.0 + num)
+                ).toList();
 
-        // Prepares the new entity
-        Entity task = Entity.newBuilder(taskKey).set(property, "Buy milk").build();
-
-        // Saves the entity
-        datastore.put(task);
-
-        // Retrieve entity
-        Entity retrieved = datastore.get(taskKey);
-
-        System.out.printf("Retrieved %s: %s%n", taskKey.getName(), retrieved.getString(property));
+        stations.forEach(stationEntity -> {
+            var stationKey = datastore.allocateId(keyFactory.newKey());
+            var entityBuilder = Entity.newBuilder(stationKey);
+            stationEntity.setPropertiesTo(entityBuilder);
+            var entity = entityBuilder.build();
+            datastore.put(entity);
+        });
     }
 
-    public String getDescription() {
-        var key = keyFactory.setKind("Task").newKey("sampletask1");
-        var entity = datastore.get(key);
-        return entity.getString("description");
+    public List<Station> getStations() {
+        Query<Entity> query = Query.newEntityQueryBuilder().setKind(StationEntity.KIND).build();
+        QueryResults<Entity> stationResults = datastore.run(query);
+
+        var entities = IteratorUtils.toList(stationResults);
+        var stationEntities = entities.stream()
+                .map(StationEntity::createFrom)
+                .toList();
+
+        return stationEntities.stream().map(StationEntity::toStation).toList();
     }
 }
