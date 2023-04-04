@@ -29,6 +29,9 @@
         <quarkus.platform.gcloud.services.id>quarkus-google-cloud-services-bom</quarkus.platform.gcloud.services.id>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+        <gcloud.libraries.version>26.5.0</gcloud.libraries.version>
+        <swagger.annotations.version>1.6.9</swagger.annotations.version>
+        <apache.commons.collections.version>4.4</apache.commons.collections.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -43,7 +46,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>26.5.0</version>
+                <version>${gcloud.libraries.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -83,12 +86,12 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>1.6.9</version>
+                <version>${swagger.annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
+                <version>${apache.commons.collections.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

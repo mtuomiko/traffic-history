@@ -1,6 +1,17 @@
 traffichistory:
+  lamUrl: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
   gcloud:
     project-id: 'traffic-history-376700'
     datastore:
       auth: 'default'
       host: ''
+
+quarkus:
+  rest-client:
+    raw-lam-api:
+      url: '${traffichistory.lamUrl}'
+#    scope: javax.inject.Singleton
+  http:
+    # root-path: '/api'
+    # Serve health endpoint under same path
+    non-application-root-path: ${quarkus.http.root-path}

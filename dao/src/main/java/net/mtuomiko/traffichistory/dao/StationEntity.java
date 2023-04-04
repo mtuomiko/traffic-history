@@ -1,6 +1,7 @@
 package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.LatLng;
 
 import net.mtuomiko.traffichistory.common.Station;
 
@@ -19,6 +20,7 @@ public record StationEntity(
     Entity.Builder setPropertiesTo(Entity.Builder builder) {
         return builder.set("name", name)
                 .set("tmsNumber", tmsNumber)
+                .set("location", LatLng.of(latitude, longitude))
                 .set("latitude", latitude)
                 .set("longitude", longitude);
     }
