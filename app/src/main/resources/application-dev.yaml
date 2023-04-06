@@ -1,4 +1,6 @@
 traffichistory:
+  tms:
+    url: 'http://localhost:3333/file/'
   gcloud:
     datastore:
       auth: 'none'

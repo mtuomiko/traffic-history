@@ -1,5 +1,6 @@
 traffichistory:
-  lamUrl: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
+  tms:
+    url: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
   gcloud:
     project-id: 'traffic-history-376700'
     datastore:
@@ -8,8 +9,8 @@ traffichistory:
 
 quarkus:
   rest-client:
-    raw-lam-api:
-      url: '${traffichistory.lamUrl}'
+    raw-tms-api:
+      url: '${traffichistory.tms.url}'
 #    scope: javax.inject.Singleton
   http:
     # root-path: '/api'

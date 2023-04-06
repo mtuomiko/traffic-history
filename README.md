@@ -45,6 +45,10 @@ started):
 * run using suspend flag: `.\mvnw.cmd quarkus:dev -Dsuspend`
 * connect JVM remote debugger to the default port 5005
 
+### External APIs
+
+In dev mode, app is set up to use localhost instead of Digitraffic APIs. Launch something to serve CSV files on `http://localhost:3333/file/<filename>`. You could for example [Mockoon](https://mockoon.com/).
+
 ### Datastore emulation
 
 Google Datastore can be emulated locally with Cloud SDK. You can also run a docker instance using, for example:

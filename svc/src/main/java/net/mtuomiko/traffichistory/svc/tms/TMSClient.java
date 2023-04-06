@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory.svc;
+package net.mtuomiko.traffichistory.svc.tms;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -15,8 +15,8 @@ import javax.ws.rs.Produces;
  * seems to be a documented way of doing things with Quarkus. It also allows us to potentially use SmallRye Fault
  * Tolerance for throttling access to the external resource.
  */
-@RegisterRestClient(configKey = "raw-lam-api")
-public interface LAMClient {
+@RegisterRestClient(configKey = "raw-tms-api")
+public interface TMSClient {
 
     @GET
     @Produces("binary/octet-stream")

@@ -32,6 +32,7 @@
         <gcloud.libraries.version>26.5.0</gcloud.libraries.version>
         <swagger.annotations.version>1.6.9</swagger.annotations.version>
         <apache.commons.collections.version>4.4</apache.commons.collections.version>
+        <apache.commons.csv.version>1.10.0</apache.commons.csv.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -92,6 +93,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${apache.commons.collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>${apache.commons.csv.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
