@@ -46,6 +46,9 @@ components:
       properties:
         name:
           type: string
+        tmsId:
+          type: integer
+          format: int32
         tmsNumber:
           type: integer
           format: int32

@@ -28,7 +28,7 @@ public class StationDao {
     public void save() {
         var stations = IntStream.range(0, 4)
                 .mapToObj(num ->
-                        new StationEntity(String.format("station_%d", num), num, 24.0 + num, 61.0 + num)
+                        new StationEntity(String.format("station_%d", num), num, num, 24.0 + num, 61.0 + num)
                 ).toList();
 
         stations.forEach(stationEntity -> {

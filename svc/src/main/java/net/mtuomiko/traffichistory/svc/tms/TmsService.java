@@ -1,12 +1,19 @@
 package net.mtuomiko.traffichistory.svc.tms;
 
+import net.mtuomiko.traffichistory.common.Station;
+import net.mtuomiko.traffichistory.svc.TmsConfig;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.plugins.interceptors.AcceptEncodingGZIPFilter;
+import org.jboss.resteasy.plugins.interceptors.GZIPDecodingInterceptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,29 +28,55 @@ import javax.enterprise.context.ApplicationScoped;
 import io.quarkus.logging.Log;
 
 @ApplicationScoped
-public class TMSService {
+public class TmsService {
 
     @RestClient
-    TMSClient tmsClient;
+    TmsCsvClient tmsCsvClient;
+
+    TmsConfig tmsConfig;
+
+    TmsStationClient tmsStationClient;
+
+    public TmsService(TmsConfig tmsConfig) {
+        this.tmsConfig = tmsConfig;
+        this.tmsStationClient = RestClientBuilder.newBuilder()
+                .baseUri(URI.create(tmsConfig.stationApiUrl()))
+                .register(GZIPDecodingInterceptor.class)
+                .register(AcceptEncodingGZIPFilter.class)
+                .build(TmsStationClient.class);
+    }
 
     private static final String FILENAME_PATTERN = "lamraw_%s_%s_%d.csv";
-    private final CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setDelimiter(';').setHeader(TMSHeader.class)
+    private final CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setDelimiter(';').setHeader(TmsCsvHeader.class)
             .build();
 
     public List<Integer> getHourlyLAMStatsByIdAndDate(String lamStationId, LocalDate date) throws IOException {
         try (
-                var responseStream = tmsClient.getByFilename(idAndDateToFilename(lamStationId, date));
+                var responseStream = tmsCsvClient.getByFilename(idAndDateToFilename(lamStationId, date));
                 var reader = new BufferedReader(new InputStreamReader(responseStream))
         ) {
             var records = csvFormat.parse(reader);
             Map<Integer, Long> countByHour = records.stream()
-                    .filter(csvRecord -> csvRecord.get(TMSHeader.FAULTY).equals("0"))
+                    .filter(csvRecord -> csvRecord.get(TmsCsvHeader.FAULTY).equals("0"))
                     .map(this::extractAndValidateHourValue)
                     .filter(java.util.Objects::nonNull)
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
             return hourlyLongMapToIntList(countByHour);
         }
+    }
+
+    public List<Station> fetchStations() {
+        var response = tmsStationClient.getStations();
+        return response.features().stream()
+                .map(feature -> new Station(
+                        feature.properties().name(),
+                        feature.properties().id(),
+                        feature.properties().tmsNumber(),
+                        feature.geometry().coordinates().get(1),
+                        feature.geometry().coordinates().get(0)
+                ))
+                .toList();
     }
 
     private String idAndDateToFilename(String lamStationId, LocalDate date) {
@@ -60,7 +93,7 @@ public class TMSService {
      * @return valid hour Integer, null for non-parseable or faulty hour values
      */
     private Integer extractAndValidateHourValue(CSVRecord csvRecord) {
-        var value = csvRecord.get(TMSHeader.HOUR);
+        var value = csvRecord.get(TmsCsvHeader.HOUR);
         try {
             var hour = Integer.parseInt(value);
             if (hour >= 0 && hour <= 23) {

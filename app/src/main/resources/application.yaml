@@ -1,6 +1,7 @@
 traffichistory:
   tms:
-    url: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
+    csv-files-url: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
+    station-api-url: 'https://tie.digitraffic.fi/api/tms/v1/stations'
   gcloud:
     project-id: 'traffic-history-376700'
     datastore:
@@ -9,8 +10,10 @@ traffichistory:
 
 quarkus:
   rest-client:
-    raw-tms-api:
-      url: '${traffichistory.tms.url}'
+    tms-csv-api:
+      url: '${traffichistory.tms.csv-files-url}'
+#    tms-station-api:
+#      url: '${traffichistory.tms.csv-files-url}'
 #    scope: javax.inject.Singleton
   http:
     # root-path: '/api'

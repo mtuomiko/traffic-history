@@ -4,8 +4,9 @@ This repository is related to my Degree Programme in Business Information System
 
 ## Background
 
-Motivation for the app was to explore relatively new possibilities to implement a serverless API on some cloud provider using Java-based technologies. In the context of this work, the term **serverless** is defined as having no dedicated instance(s) and also allowing the service to scale to zero consuming no resources unless demanded. The selected content (traffic data history) / provided service of the API is not really ideal for serverless approach. More
-unpredictable or periodic workloads would be a better fit. But for this exploratory work, it will suffice. Serverless approach meant that low startup time would be essential to maintain good response times to requests even if the instance would start from scratch. This lead towards Ahead of Time compilation focused frameworks called Micronaut and Quarkus. Ultimately, Quarkus and Google Cloud was selected for the implementation.
+Motivation for the app was to explore relatively new possibilities to implement a serverless API on some cloud provider using Java-based technologies. In the context of this work, the term **serverless** is defined as having no dedicated instance(s) and also allowing the service to scale to zero consuming no resources unless demanded. 
+
+The selected content (traffic data history) / provided service of the API is not really ideal for serverless approach. More unpredictable or periodic workloads might be a better fit. But for this exploratory work, it will suffice. Serverless approach meant that low startup time would be essential to maintain good response times to requests even if the instance would start from scratch. This lead towards Ahead of Time compilation focused frameworks called Micronaut and Quarkus. Startup time is also heavily influenced by how the cloud provider handles things. Ultimately, Quarkus and Google Cloud was selected for the implementation. 
 
 ## Containerized
 
@@ -47,7 +48,8 @@ started):
 
 ### External APIs
 
-In dev mode, app is set up to use localhost instead of Digitraffic APIs. Launch something to serve CSV files on `http://localhost:3333/file/<filename>`. You could for example [Mockoon](https://mockoon.com/).
+In dev mode, app is set up to use localhost instead of Digitraffic APIs. 
+* Launch something to serve CSV files on `http://localhost:3333/file/<filename>` and station API on `http://localhost:3333/station`. You could use for example [Mockoon](https://mockoon.com/).
 
 ### Datastore emulation
 

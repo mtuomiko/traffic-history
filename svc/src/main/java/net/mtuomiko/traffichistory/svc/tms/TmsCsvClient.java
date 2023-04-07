@@ -10,13 +10,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- * Client declaration for accessing raw LAM CSV files from external API. The  API does not provide JSON/REST
+ * Client declaration for accessing raw LAM CSV files from external API. The API does not provide JSON/REST
  * responses, only raw files, so any mention of REST here does not have a meaning in that sense. RegisterRestClient
  * seems to be a documented way of doing things with Quarkus. It also allows us to potentially use SmallRye Fault
  * Tolerance for throttling access to the external resource.
+ * <p>
+ * Digitraffic has some varying numbering on the filenames. Some stations can have negative tmsNumbers which won't work
+ * as part of the filename, but their data is accessible using the id instead of the tmsNumber value.
  */
-@RegisterRestClient(configKey = "raw-tms-api")
-public interface TMSClient {
+@RegisterRestClient(configKey = "tms-csv-api")
+public interface TmsCsvClient {
 
     @GET
     @Produces("binary/octet-stream")

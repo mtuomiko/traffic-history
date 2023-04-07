@@ -23,6 +23,7 @@ public class StationResource implements StationApi {
 
     private Station toApiStation(net.mtuomiko.traffichistory.common.Station station) {
         return new Station().name(station.name())
+                .tmsId(station.tmsId())
                 .tmsNumber(station.tmsNumber())
                 .latitude(station.latitude())
                 .longitude(station.longitude());
