@@ -1,0 +1,7 @@
+traffichistory:
+  tms:
+    station-api-url: 'http://localhost:3333/stations'
+  gcloud:
+    datastore:
+      auth: 'none'
+      host: 'http://host.docker.internal:8000'

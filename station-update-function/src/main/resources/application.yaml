@@ -1,0 +1,12 @@
+traffichistory:
+  tms:
+    station-api-url: 'https://tie.digitraffic.fi/api/tms/v1/stations'
+  gcloud:
+    project-id: 'traffic-history-376700'
+    datastore:
+      auth: 'none'
+      host: 'http://host.docker.internal:8000'
+
+quarkus:
+  google-cloud-functions:
+    function: updateStationsV1

@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class TmsService {
     public List<Integer> getHourlyLAMStatsByIdAndDate(String lamStationId, LocalDate date) throws IOException {
         try (
                 var responseStream = tmsCsvClient.getByFilename(idAndDateToFilename(lamStationId, date));
-                var reader = new BufferedReader(new InputStreamReader(responseStream))
+                var reader = new BufferedReader(new InputStreamReader(responseStream, StandardCharsets.UTF_8))
         ) {
             var records = csvFormat.parse(reader);
             Map<Integer, Long> countByHour = records.stream()

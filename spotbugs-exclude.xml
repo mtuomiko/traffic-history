@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
-    <Match>
+    <Match><!-- Limited ability to affect generated code, it is what it is -->
         <Package name="~net.mtuomiko.traffichistory.gen.*" />
     </Match>
 
-    <!-- False alarms from constructor injection -->
-    <Match>
+    <Match><!-- False alarms from constructor injection -->
         <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match><!-- Too trigger-happy on collections inside record -->
+        <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
 </FindBugsFilter>
