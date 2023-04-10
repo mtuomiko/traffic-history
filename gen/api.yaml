@@ -24,13 +24,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/StationsResponse'
 
-#  /station/{stationId}:
-#    get:
-#      tags: [ station ]
-#      summary: Get hourly traffic volume on single station
-#      description: |-
-#        Returns single station hourly traffic volumes on selected days. Can select maximum 7 days on single request.
-#      operationId: getStationTraffic
+  /station/{stationId}:
+    get:
+      tags: [ station ]
+      summary: Get hourly traffic volumes on single station
+      description: |-
+        Returns single station hourly traffic volumes on selected days. Can select maximum 7 days on single request.
+      operationId: getStationTraffic
+      parameters:
+        - name: stationId
+          in: path
+          description: Station ID
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: firstDate
+          in: query
+          description: First date to include
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: lastDate
+          in: query
+          description: Last date to include
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StationsResponse'
 
 components:
   schemas:
@@ -58,3 +85,24 @@ components:
         longitude:
           type: number
           format: double
+    TrafficVolumeResponse:
+      type: object
+      properties:
+        trafficVolumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleDayTrafficVolume'
+    SingleDayTrafficVolume:
+      type: object
+      properties:
+        date:
+          $ref: DateString
+        hourlyVolumes:
+          type: array
+          items:
+            type: integer
+            format: int32
+    DateString:
+      type: string
+      format: date
+      example: '2022-04-18'

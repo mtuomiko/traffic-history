@@ -71,6 +71,7 @@
                             <ignoreFileOverride>${project.basedir}/.openapi-generator-ignore</ignoreFileOverride>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
+                                <dateLibrary>java8</dateLibrary>
                                 <!--                                <sourceFolder>src/gen/java/main</sourceFolder>-->
                             </configOptions>
                         </configuration>

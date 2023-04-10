@@ -5,6 +5,8 @@ import net.mtuomiko.traffichistory.gen.model.Station;
 import net.mtuomiko.traffichistory.gen.model.StationsResponse;
 import net.mtuomiko.traffichistory.svc.StationService;
 
+import java.time.LocalDate;
+
 public class StationResource implements StationApi {
 
     private final StationService stationService;
@@ -19,6 +21,11 @@ public class StationResource implements StationApi {
         var apiStations = stations.stream().map(this::toApiStation).toList();
 
         return new StationsResponse().stations(apiStations);
+    }
+
+    @Override
+    public StationsResponse getStationTraffic(Integer stationId, LocalDate firstDate, LocalDate lastDate) {
+        return null;
     }
 
     private Station toApiStation(net.mtuomiko.traffichistory.common.Station station) {

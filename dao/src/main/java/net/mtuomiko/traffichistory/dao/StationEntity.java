@@ -18,13 +18,6 @@ public record StationEntity(
     public static final String TMS_NUMBER = "tmsNumber";
     public static final String LOCATION = "location";
 
-    Entity.Builder setPropertiesTo(Entity.Builder builder) {
-        return builder.set(NAME, name)
-                .set(TMS_ID, tmsId)
-                .set(TMS_NUMBER, tmsNumber)
-                .set(LOCATION, LatLng.of(latitude, longitude));
-    }
-
     Station toStation() {
         return new Station(name, tmsId, tmsNumber, latitude, longitude);
     }
