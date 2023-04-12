@@ -83,8 +83,10 @@ and [Microprofile mapping rules](https://github.com/eclipse/microprofile-config/
 
 ### Manual deployment to Google Cloud Run using Container Registry
 
-Instructions exclude any versioning. Requires gcloud CLI and Docker.
+Instructions exclude any versioning. Requires gcloud CLI and Docker. This does not contain all the necessary steps to 
+initialize the cloud environment such as project creation.
 
+* Datastore composite indices must be initialized one time: `gcloud datastore indexes create ./dao/index.yaml`
 * Build native runner image: `docker build -f docker/Dockerfile.multistage -t traffichistory-native .`
 * Tag it to GCP EU container registry: `docker tag traffichistory-native eu.gcr.io/<project_id>/traffichistory-native`
     * Use correct project id

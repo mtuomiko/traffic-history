@@ -37,6 +37,7 @@
     <swagger.annotations.version>1.6.9</swagger.annotations.version>
     <apache.commons.collections.version>4.4</apache.commons.collections.version>
     <apache.commons.csv.version>1.10.0</apache.commons.csv.version>
+    <apache.commons.lang.version>3.12.0</apache.commons.lang.version>
   </properties>
   <dependencyManagement>
     <dependencies>

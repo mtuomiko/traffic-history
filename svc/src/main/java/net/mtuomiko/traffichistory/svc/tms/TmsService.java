@@ -47,11 +47,14 @@ public class TmsService {
                 .build(TmsStationClient.class);
     }
 
-    private static final String FILENAME_PATTERN = "lamraw_%s_%s_%d.csv";
+    public TmsService() {
+    }
+
+    private static final String FILENAME_PATTERN = "lamraw_%d_%s_%d.csv";
     private final CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setDelimiter(';').setHeader(TmsCsvHeader.class)
             .build();
 
-    public List<Integer> getHourlyLAMStatsByIdAndDate(String lamStationId, LocalDate date) throws IOException {
+    public List<Integer> getHourlyLAMStatsByIdAndDate(Integer lamStationId, LocalDate date) {
         try (
                 var responseStream = tmsCsvClient.getByFilename(idAndDateToFilename(lamStationId, date));
                 var reader = new BufferedReader(new InputStreamReader(responseStream, StandardCharsets.UTF_8))
@@ -64,6 +67,8 @@ public class TmsService {
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
             return hourlyLongMapToIntList(countByHour);
+        } catch (IOException e) {
+            throw new RuntimeException("failed to read external CSV", e);
         }
     }
 
@@ -80,7 +85,7 @@ public class TmsService {
                 .toList();
     }
 
-    private String idAndDateToFilename(String lamStationId, LocalDate date) {
+    private String idAndDateToFilename(Integer lamStationId, LocalDate date) {
         var twoDigitYear = DateTimeFormatter.ofPattern("yy").format(date);
         var dayOfYear = date.getDayOfYear();
 

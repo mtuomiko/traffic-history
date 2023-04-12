@@ -1,0 +1,7 @@
+indexes:
+
+  - kind: HourlyVolumes
+    ancestor: yes
+    properties:
+      - name: date
+        direction: asc

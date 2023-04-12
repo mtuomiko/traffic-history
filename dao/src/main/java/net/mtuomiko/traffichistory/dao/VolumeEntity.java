@@ -4,17 +4,16 @@ import static net.mtuomiko.traffichistory.dao.StationDao.ZONE_ID;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Value;
+import com.google.cloud.datastore.LongValue;
 
-import net.mtuomiko.traffichistory.common.HourlyVolumes;
+import net.mtuomiko.traffichistory.common.HourlyTraffic;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 public record VolumeEntity(
         Timestamp date,
-        List<Value<Integer>> volumes
+        List<LongValue> volumes
 ) {
     public static final String KIND = "HourlyVolumes";
     public static final String DATE = "date";
@@ -22,22 +21,29 @@ public record VolumeEntity(
 
     static VolumeEntity createFrom(Entity entity) {
         var dateTimestamp = entity.getTimestamp(DATE);
-        var volumes = entity.<Value<Integer>>getList(VOLUMES);
+        var volumes = entity.<LongValue>getList(VOLUMES);
         return new VolumeEntity(dateTimestamp, volumes);
     }
 
-//    Entity.Builder setPropertiesTo(Entity.Builder builder) {
-//        return builder.set(DATE, name)
-//                .set(TMS_ID, tmsId)
-//                .set(TMS_NUMBER, tmsNumber)
-//                .set(LOCATION, LatLng.of(latitude, longitude));
-//    }
+    Entity.Builder setPropertiesTo(Entity.Builder builder) {
+        return builder.set(DATE, date)
+                .set(VOLUMES, volumes);
+    }
 
-    HourlyVolumes toHourlyVolumes() {
+    HourlyTraffic toHourlyVolumes() {
         var date = Instant.ofEpochSecond(this.date.getSeconds(), this.date.getNanos())
                 .atZone(ZONE_ID)
                 .toLocalDate();
-        var volumesList = volumes.stream().map(Value::get).toList();
-        return new HourlyVolumes(date, volumesList);
+        var volumesList = volumes.stream().map(value -> value.get().intValue()).toList();
+        return new HourlyTraffic(date, volumesList);
+    }
+
+    static VolumeEntity createFrom(HourlyTraffic traffic) {
+        var dateInstant = traffic.date().atStartOfDay(ZONE_ID).toInstant();
+        var date = Timestamp.ofTimeSecondsAndNanos(dateInstant.getEpochSecond(), dateInstant.getNano());
+        var longValueList = traffic.volumes().stream()
+                .map(num -> LongValue.newBuilder(num.longValue()).setExcludeFromIndexes(true).build())
+                .toList();
+        return new VolumeEntity(date, longValueList);
     }
 }

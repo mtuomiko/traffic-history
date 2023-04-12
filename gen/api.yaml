@@ -57,7 +57,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StationsResponse'
+                $ref: '#/components/schemas/TrafficVolumeResponse'
 
 components:
   schemas:

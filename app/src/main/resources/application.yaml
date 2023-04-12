@@ -12,10 +12,6 @@ quarkus:
   rest-client:
     tms-csv-api:
       url: '${traffichistory.tms.csv-files-url}'
-#    tms-station-api:
-#      url: '${traffichistory.tms.csv-files-url}'
-#    scope: javax.inject.Singleton
   http:
-    # root-path: '/api'
     # Serve health endpoint under same path
     non-application-root-path: ${quarkus.http.root-path}
