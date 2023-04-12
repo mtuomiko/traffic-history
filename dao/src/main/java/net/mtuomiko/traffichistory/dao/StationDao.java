@@ -3,6 +3,7 @@ package net.mtuomiko.traffichistory.dao;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.EntityValue;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.PathElement;
@@ -11,6 +12,7 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.Value;
 
 import net.mtuomiko.traffichistory.common.HourlyTraffic;
 import net.mtuomiko.traffichistory.common.Station;
@@ -29,22 +31,23 @@ import javax.inject.Singleton;
 public class StationDao {
     Datastore datastore;
     KeyFactory stationKeyFactory;
-    KeyFactory trafficKeyFactory;
+    Key stationListKey;
 
     static final ZoneId ZONE_ID = ZoneId.of("Europe/Helsinki");
+    private static final String stationListKeyString = "stationList";
 
     public StationDao(Datastore datastore) {
         this.datastore = datastore;
         this.stationKeyFactory = datastore.newKeyFactory().setKind(StationEntity.KIND);
-        this.trafficKeyFactory = datastore.newKeyFactory().setKind(VolumeEntity.KIND);
+        this.stationListKey = datastore.newKeyFactory().setKind(StationListEntity.KIND).newKey(stationListKeyString);
     }
 
     public List<Station> getStations() {
-        Query<Entity> query = Query.newEntityQueryBuilder().setKind(StationEntity.KIND).build();
-        QueryResults<Entity> stationResults = datastore.run(query);
+        var entity = datastore.get(stationListKey);
 
-        var entities = IteratorUtils.toList(stationResults);
-        var stationEntities = entities.stream()
+        var embeddedEntities = entity.<EntityValue>getList(StationListEntity.STATIONS);
+        var stationEntities = embeddedEntities.stream()
+                .map(Value::get)
                 .map(StationEntity::createFrom)
                 .toList();
 
@@ -126,10 +129,6 @@ public class StationDao {
     }
 
     private Key stationKey(Integer stationId) {
-        return stationKeyFactory.newKey(String.format("station%d", stationId));
-    }
-
-    private Key trafficKey(Integer stationId) {
         return stationKeyFactory.newKey(String.format("station%d", stationId));
     }
 }

@@ -1,6 +1,7 @@
 package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.LatLng;
 
 import net.mtuomiko.traffichistory.common.Station;
@@ -28,6 +29,16 @@ public record StationEntity(
                 entity.getString(NAME),
                 (int) entity.getLong(TMS_ID),
                 (int) entity.getLong(TMS_NUMBER),
+                location.getLatitude(),
+                location.getLongitude()
+        );
+    }
+    static StationEntity createFrom(FullEntity<?> fullEntity) {
+        var location = fullEntity.getLatLng(LOCATION);
+        return new StationEntity(
+                fullEntity.getString(NAME),
+                (int) fullEntity.getLong(TMS_ID),
+                (int) fullEntity.getLong(TMS_NUMBER),
                 location.getLatitude(),
                 location.getLongitude()
         );

@@ -42,6 +42,7 @@ public record VolumeEntity(
         var dateInstant = traffic.date().atStartOfDay(ZONE_ID).toInstant();
         var date = Timestamp.ofTimeSecondsAndNanos(dateInstant.getEpochSecond(), dateInstant.getNano());
         var longValueList = traffic.volumes().stream()
+                // list value indices cannot be disabled on the list itself, only on individual values
                 .map(num -> LongValue.newBuilder(num.longValue()).setExcludeFromIndexes(true).build())
                 .toList();
         return new VolumeEntity(date, longValueList);
