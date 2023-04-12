@@ -1,0 +1,4 @@
+# Handle line endings. Committed text files will have Unix style.
+*       text=auto
+# Don't touch maven script file
+mvnw text eol=lf
