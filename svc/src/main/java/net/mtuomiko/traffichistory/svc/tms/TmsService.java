@@ -34,19 +34,6 @@ public class TmsService {
     @RestClient
     TmsCsvClient tmsCsvClient;
 
-    TmsConfig tmsConfig;
-
-    TmsStationClient tmsStationClient;
-
-    public TmsService(TmsConfig tmsConfig) {
-        this.tmsConfig = tmsConfig;
-        this.tmsStationClient = RestClientBuilder.newBuilder()
-                .baseUri(URI.create(tmsConfig.stationApiUrl()))
-                .register(GZIPDecodingInterceptor.class)
-                .register(AcceptEncodingGZIPFilter.class)
-                .build(TmsStationClient.class);
-    }
-
     public TmsService() {
     }
 
@@ -70,19 +57,6 @@ public class TmsService {
         } catch (IOException e) {
             throw new RuntimeException("failed to read external CSV", e);
         }
-    }
-
-    public List<Station> fetchStations() {
-        var response = tmsStationClient.getStations();
-        return response.features().stream()
-                .map(feature -> new Station(
-                        feature.properties().name(),
-                        feature.properties().id(),
-                        feature.properties().tmsNumber(),
-                        feature.geometry().coordinates().get(1),
-                        feature.geometry().coordinates().get(0)
-                ))
-                .toList();
     }
 
     private String idAndDateToFilename(Integer lamStationId, LocalDate date) {

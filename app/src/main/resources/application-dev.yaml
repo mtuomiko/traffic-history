@@ -1,7 +1,6 @@
 traffichistory:
   tms:
     csv-files-url: 'http://localhost:3333/file/'
-    station-api-url: 'http://localhost:3333/stations'
   gcloud:
     datastore:
       auth: 'none'

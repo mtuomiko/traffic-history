@@ -1,7 +1,6 @@
 traffichistory:
   tms:
     csv-files-url: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
-    station-api-url: 'https://tie.digitraffic.fi/api/tms/v1/stations'
   gcloud:
     project-id: 'traffic-history-376700'
     datastore:
