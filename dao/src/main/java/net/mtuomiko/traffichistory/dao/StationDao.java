@@ -14,8 +14,8 @@ import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Value;
 
-import net.mtuomiko.traffichistory.common.HourlyTraffic;
-import net.mtuomiko.traffichistory.common.Station;
+import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
+import net.mtuomiko.traffichistory.common.model.Station;
 
 import org.apache.commons.collections4.IteratorUtils;
 
@@ -69,7 +69,7 @@ public class StationDao {
      * @param stationId
      * @param firstDate
      * @param lastDate
-     * @return null padded sorted map of all local dates between firstDate and lastDate
+     * @return null padded sorted map of all local dates between firstDate and lastDate (inclusive)
      */
     public SortedMap<LocalDate, HourlyTraffic> getHourlyVolumes(Integer stationId, LocalDate firstDate,
                                                                 LocalDate lastDate) {

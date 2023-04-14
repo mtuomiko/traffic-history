@@ -5,8 +5,6 @@ import com.google.cloud.datastore.DatastoreOptions;
 
 import java.util.logging.Logger;
 
-import io.quarkus.logging.Log;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
@@ -25,7 +23,7 @@ public class DatastoreProducer {
     @Produces
     Datastore datastore() {
         var auth = gcloudConfig.datastore().auth();
-        logger.info(String.format("Creating Datastore with %s authentication", auth.name()));
+        logger.info(() -> String.format("Creating Datastore with %s authentication", auth.name()));
         return switch (gcloudConfig.datastore().auth()) {
             case DEFAULT -> DatastoreOptions.getDefaultInstance().getService();
             case NONE -> DatastoreOptions.newBuilder()

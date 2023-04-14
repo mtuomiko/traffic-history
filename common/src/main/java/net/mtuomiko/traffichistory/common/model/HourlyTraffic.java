@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory.common;
+package net.mtuomiko.traffichistory.common.model;
 
 import java.time.LocalDate;
 import java.util.List;

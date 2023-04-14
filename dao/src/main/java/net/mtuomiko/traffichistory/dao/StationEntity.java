@@ -2,9 +2,8 @@ package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
-import com.google.cloud.datastore.LatLng;
 
-import net.mtuomiko.traffichistory.common.Station;
+import net.mtuomiko.traffichistory.common.model.Station;
 
 public record StationEntity(
         String name,

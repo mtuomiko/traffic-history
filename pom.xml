@@ -28,12 +28,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>2.15.3.Final</quarkus.platform.version>
+    <quarkus.platform.version>2.16.6.Final</quarkus.platform.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.gcloud.services.id>quarkus-google-cloud-services-bom</quarkus.platform.gcloud.services.id>
+<!--    <quarkus.platform.gcloud.services.id>quarkus-google-cloud-services-bom</quarkus.platform.gcloud.services.id>-->
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
-    <gcloud.libraries.version>26.5.0</gcloud.libraries.version>
+    <gcloud.libraries.version>26.12.0</gcloud.libraries.version>
     <swagger.annotations.version>1.6.9</swagger.annotations.version>
     <apache.commons.collections.version>4.4</apache.commons.collections.version>
     <apache.commons.csv.version>1.10.0</apache.commons.csv.version>

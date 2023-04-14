@@ -23,6 +23,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StationsResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
 
   /station/{stationId}:
     get:
@@ -58,6 +60,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TrafficVolumeResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
 
 components:
   schemas:
@@ -106,3 +110,21 @@ components:
       type: string
       format: date
       example: '2022-04-18'
+    ErrorWrapper:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+  responses:
+    ErrorResponse:
+      description: Generic error response containing a status code and message with an array of errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorWrapper'

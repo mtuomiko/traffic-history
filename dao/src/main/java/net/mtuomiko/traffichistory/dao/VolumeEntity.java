@@ -6,7 +6,7 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.LongValue;
 
-import net.mtuomiko.traffichistory.common.HourlyTraffic;
+import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,5 +1,8 @@
 package net.mtuomiko.traffichistory.svc.tms;
 
+import net.mtuomiko.traffichistory.common.ExternalFailureException;
+import net.mtuomiko.traffichistory.common.NotFoundException;
+
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import java.io.InputStream;
@@ -8,6 +11,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 
 /**
  * Client declaration for accessing raw LAM CSV files from external API. The API does not provide JSON/REST
@@ -26,4 +32,14 @@ public interface TmsCsvClient {
     @Path("{filename}")
     InputStream getByFilename(@PathParam("filename") String filename);
 
+    @ClientExceptionMapper(priority = 1)
+    static RuntimeException toException(Response response) {
+        if (response.getStatus() == 404) {
+            return new NotFoundException("CSV file was not found");
+        }
+        if (response.getStatus() >= 400 && response.getStatus() <= 500) {
+            return new ExternalFailureException("CSV API request failed");
+        }
+        return null;
+    }
 }

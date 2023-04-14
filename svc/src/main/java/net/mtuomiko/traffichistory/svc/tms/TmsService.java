@@ -1,19 +1,15 @@
 package net.mtuomiko.traffichistory.svc.tms;
 
-import net.mtuomiko.traffichistory.common.Station;
-import net.mtuomiko.traffichistory.svc.TmsConfig;
+import net.mtuomiko.traffichistory.common.ExternalFailureException;
+import net.mtuomiko.traffichistory.common.model.StationIdentity;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.resteasy.plugins.interceptors.AcceptEncodingGZIPFilter;
-import org.jboss.resteasy.plugins.interceptors.GZIPDecodingInterceptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -41,9 +37,9 @@ public class TmsService {
     private final CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setDelimiter(';').setHeader(TmsCsvHeader.class)
             .build();
 
-    public List<Integer> getHourlyLAMStatsByIdAndDate(Integer lamStationId, LocalDate date) {
+    public List<Integer> getHourlyLAMStatsByIdentityAndDate(StationIdentity stationId, LocalDate date) {
         try (
-                var responseStream = tmsCsvClient.getByFilename(idAndDateToFilename(lamStationId, date));
+                var responseStream = tmsCsvClient.getByFilename(idAndDateToFilename(stationId, date));
                 var reader = new BufferedReader(new InputStreamReader(responseStream, StandardCharsets.UTF_8))
         ) {
             var records = csvFormat.parse(reader);
@@ -55,15 +51,17 @@ public class TmsService {
 
             return hourlyLongMapToIntList(countByHour);
         } catch (IOException e) {
-            throw new RuntimeException("failed to read external CSV", e);
+            throw new ExternalFailureException("Failed to read external CSV", e);
         }
     }
 
-    private String idAndDateToFilename(Integer lamStationId, LocalDate date) {
+    private String idAndDateToFilename(StationIdentity stationId, LocalDate date) {
+        // stations with negative tmsNumber must have their files accessed using the station id
+        var filenameId = (stationId.tmsNumber() < 0) ? stationId.tmsId() : stationId.tmsNumber();
         var twoDigitYear = DateTimeFormatter.ofPattern("yy").format(date);
         var dayOfYear = date.getDayOfYear();
 
-        return String.format(FILENAME_PATTERN, lamStationId, twoDigitYear, dayOfYear);
+        return String.format(FILENAME_PATTERN, filenameId, twoDigitYear, dayOfYear);
     }
 
     /**

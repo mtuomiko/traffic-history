@@ -1,6 +1,6 @@
 package net.mtuomiko.traffichistory.api;
 
-import net.mtuomiko.traffichistory.common.HourlyTraffic;
+import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
 import net.mtuomiko.traffichistory.gen.api.StationApi;
 import net.mtuomiko.traffichistory.gen.model.SingleDayTrafficVolume;
 import net.mtuomiko.traffichistory.gen.model.Station;
@@ -9,16 +9,15 @@ import net.mtuomiko.traffichistory.gen.model.TrafficVolumeResponse;
 import net.mtuomiko.traffichistory.svc.StationService;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-
-import javax.ws.rs.BadRequestException;
 
 public class StationResource implements StationApi {
 
     private final StationService stationService;
+    private final RequestDatesValidator validator;
 
-    public StationResource(StationService stationDao) {
+    public StationResource(StationService stationDao, RequestDatesValidator validator) {
         this.stationService = stationDao;
+        this.validator = validator;
     }
 
     @Override
@@ -31,9 +30,7 @@ public class StationResource implements StationApi {
 
     @Override
     public TrafficVolumeResponse getStationTraffic(Integer stationId, LocalDate firstDate, LocalDate lastDate) {
-        if (firstDate.isAfter(lastDate) || ChronoUnit.DAYS.between(firstDate, lastDate) > 6) {
-            throw new BadRequestException("invalid date query params");
-        }
+        validator.validate(firstDate, lastDate);
 
         var traffic = stationService.getStationTraffic(stationId, firstDate, lastDate);
 
@@ -41,7 +38,7 @@ public class StationResource implements StationApi {
                 .toList());
     }
 
-    private Station toApiStation(net.mtuomiko.traffichistory.common.Station station) {
+    private Station toApiStation(net.mtuomiko.traffichistory.common.model.Station station) {
         return new Station().name(station.name())
                 .tmsId(station.tmsId())
                 .tmsNumber(station.tmsNumber())

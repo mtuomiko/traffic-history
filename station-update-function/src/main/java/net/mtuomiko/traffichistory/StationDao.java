@@ -27,7 +27,7 @@ public class StationDao {
     }
 
     public void upsertStations(List<StationEntity> stationEntities) {
-        logger.info("Upserting stations");
+        logger.info(() -> String.format("Upserting %d stations", stationEntities.size()));
         var entities = stationEntities.stream().map(stationEntity -> {
             var stationKey = keyFactory.newKey(String.format("station%d", stationEntity.tmsId()));
             var entityBuilder = Entity.newBuilder(stationKey);
@@ -36,7 +36,6 @@ public class StationDao {
         }).toList();
 
         var chunks = ListUtils.partition(entities, 100);
-
         chunks.forEach(chunk -> {
             var batch = datastore.newBatch();
             chunk.forEach(batch::put);

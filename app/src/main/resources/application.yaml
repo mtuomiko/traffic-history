@@ -1,4 +1,7 @@
 traffichistory:
+  config:
+    earliest-date: '2000-01-01'
+    current-date-buffer: 5
   tms:
     csv-files-url: 'https://tie.digitraffic.fi/api/tms/v1/history/raw/'
   gcloud:

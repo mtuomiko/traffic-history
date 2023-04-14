@@ -1,7 +1,9 @@
 package net.mtuomiko.traffichistory.svc;
 
-import net.mtuomiko.traffichistory.common.HourlyTraffic;
-import net.mtuomiko.traffichistory.common.Station;
+import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
+import net.mtuomiko.traffichistory.common.NotFoundException;
+import net.mtuomiko.traffichistory.common.model.Station;
+import net.mtuomiko.traffichistory.common.model.StationIdentity;
 import net.mtuomiko.traffichistory.dao.StationDao;
 import net.mtuomiko.traffichistory.svc.tms.TmsService;
 
@@ -31,11 +33,20 @@ public class StationService {
         return stationDao.getStations();
     }
 
+    /**
+     *
+     * @param stationId
+     * @param firstDate
+     * @param lastDate
+     * @return
+     * @throws NotFoundException if station is not found
+     */
     public List<HourlyTraffic> getStationTraffic(Integer stationId, LocalDate firstDate, LocalDate lastDate) {
         var station = stationDao.getStation(stationId);
         if (station == null) {
-            return null;
+            throw new NotFoundException("Station not found");
         }
+        var stationIdentity = station.toStationIdentity();
 
         var trafficVolumes = stationDao.getHourlyVolumes(stationId, firstDate, lastDate);
 
@@ -45,9 +56,9 @@ public class StationService {
                 .toList();
 
         if (!missingDates.isEmpty()) {
-            Log.infov("Missing stored traffic volumes for {0} dates: {1}", missingDates.size(),
+            Log.debugv("Missing stored traffic volumes for {0} dates: {1}", missingDates.size(),
                     StringUtils.join(missingDates, ", "));
-            var fetchedHourlyVolumes = getMissingHourlyVolumes(station.tmsNumber(), missingDates);
+            var fetchedHourlyVolumes = fetchHourlyTraffic(stationIdentity, missingDates);
 
             fetchedHourlyVolumes.forEach(hourlyTraffic -> trafficVolumes.put(hourlyTraffic.date(), hourlyTraffic));
 
@@ -57,9 +68,9 @@ public class StationService {
         return trafficVolumes.values().stream().toList();
     }
 
-    private List<HourlyTraffic> getMissingHourlyVolumes(Integer tmsNumber, List<LocalDate> dates) {
+    private List<HourlyTraffic> fetchHourlyTraffic(StationIdentity stationIdentity, List<LocalDate> dates) {
         return dates.stream().map(date -> {
-            var integerList = tmsService.getHourlyLAMStatsByIdAndDate(tmsNumber, date);
+            var integerList = tmsService.getHourlyLAMStatsByIdentityAndDate(stationIdentity, date);
             return new HourlyTraffic(date, integerList);
         }).toList();
     }
