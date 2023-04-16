@@ -61,7 +61,7 @@ public class StationService {
 
             fetchedHourlyVolumes.forEach(hourlyTraffic -> trafficVolumes.put(hourlyTraffic.date(), hourlyTraffic));
 
-            stationDao.storeHourlyVolumes(stationId, fetchedHourlyVolumes);
+            stationDao.storeHourlyTraffic(stationId, fetchedHourlyVolumes);
         }
 
         return trafficVolumes.entrySet().stream().map(entry -> {

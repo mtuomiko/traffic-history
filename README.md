@@ -12,7 +12,9 @@ The selected content (traffic data history) / provided service of the API is not
 
 Project is a multi-module Maven project with a fairly generic API / service / DAO layer split of functionality (even though Maven won't enforce visibility between modules). In addition, there's the `common` module for DTO models and the `gen` module for API interface and model generation from OpenAPI specifications.
 
-The repository also contains a separate [station-update-function](station-update-function/) folder which defines another Quarkus project providing a Google Cloud Function for updating station information. The function project is not programmatically part of the root project and could just as well be a separate Git repository / a Git submodule, but it was handled in this way for simplicity. Ideally the function project would share code with the main project to guarantee, for example, the same data structure on the DAO level.
+The repository also contains a separate [station-update-function](station-update-function/) folder which defines another Quarkus project providing a Google Cloud Function for updating station information. Ideally the function project would share code directly with the main project to guarantee, for example, the same data structure on the DAO level. The code sharing is currently done with a library module `datastore` which both the main project and the function project use. This creates some difficulty in handling the dependencies as the library project isn't published in any real repository.
+
+Datastore
 
 ## Containerized
 
@@ -22,14 +24,16 @@ Quarkus supports GraalVM Native Image which can be used to create native binarie
 
 Docker commands for multi-stage native build without a local GraalVM installation:
 
-* Build: `docker build -f docker/Dockerfile.multistage -t traffichistory-native .`
-* Create only the builder image for debugging
-  contents: `docker build -f docker/Dockerfile.multistage.builder -t traffichistory-native-builder .`
+* Create the builder image: `docker build -f docker/Dockerfile.multistage.builder -t traffichistory-native-builder .`
+* Run native build: `docker run --entrypoint /code/buildscript.sh -it --rm -v "C:/Users/mtuomiko/.m2:/home/quarkus/.m2" -v "$(pwd)/target:/code/app/target" traffichistory-native-builder`
+  * Entrypoint replacement is for delaying the dependency fetching to runtime, so we can mount a local m2 folder. The m2 folder mount is not required. The file access is somewhat slow at least on Windows, but we avoid downloading the dependencies everytime. 
+* Create runner image `docker build -f docker/Dockerfile.multistage.runner -t traffichistory-native .`
 * Debug builder contents: `docker run --rm -it --entrypoint /bin/bash traffichistory-native-builder`
+  * `-u root` can be helpful
 * Run native image against local
   datastore: `docker run --rm -it --env-file ./docker/.env.local -p 8080:8080 traffichistory-native`
 
-`Dockerfile.multistage` has manually defined folder copy commands depending on project structure so they must be updated if the basic project structure changes.
+Multistage Dockerfiles have manually defined folder copy commands depending on project structure, so they must be updated if the basic project structure changes.
 
 ## Development
 
@@ -95,7 +99,7 @@ Instructions exclude any versioning. Requires gcloud CLI and Docker. This does n
 initialize the cloud environment such as project creation.
 
 * Datastore composite indices must be initialized one time: `gcloud datastore indexes create ./dao/index.yaml`
-* Build native runner image: `docker build -f docker/Dockerfile.multistage -t traffichistory-native .`
+* Build the runner image, see [Native image](#native-image)
 * Tag it to GCP EU container registry: `docker tag traffichistory-native eu.gcr.io/<project_id>/traffichistory-native`
     * Use correct project id
 * Push image: `docker push eu.gcr.io/<project_id>/traffichistory-native`

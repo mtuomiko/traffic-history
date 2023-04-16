@@ -3,22 +3,25 @@ package net.mtuomiko.traffichistory;
 import com.google.cloud.functions.BackgroundFunction;
 import com.google.cloud.functions.Context;
 
-import net.mtuomiko.traffichistory.tms.TmsService;
+import net.mtuomiko.traffichistory.tms.TmsStationService;
 
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
+/**
+ * Main entrypoint to the function. Will be triggered externally.
+ */
 @Named("updateStationsV1")
 @ApplicationScoped
 public class UpdateStationsV1 implements BackgroundFunction<PubsubMessage> {
 
-    private TmsService tmsService;
+    private TmsStationService tmsStationService;
     private StationDao stationDao;
 
-    public UpdateStationsV1(TmsService tmsService, StationDao stationDao) {
-        this.tmsService = tmsService;
+    public UpdateStationsV1(TmsStationService tmsStationService, StationDao stationDao) {
+        this.tmsStationService = tmsStationService;
         this.stationDao = stationDao;
     }
 
@@ -28,7 +31,7 @@ public class UpdateStationsV1 implements BackgroundFunction<PubsubMessage> {
     public void accept(PubsubMessage pubsubMessage, Context context) {
         logger.info("UpdateStationsV1 triggered");
 
-        var stations = tmsService.fetchStations();
+        var stations = tmsStationService.fetchStations();
         stationDao.upsertStations(stations);
 
         logger.info("Stations upserted");

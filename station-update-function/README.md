@@ -1,10 +1,14 @@
+## Station update function
+
+
+
 ### Notes
 
 Created using:
 mvn io.quarkus.platform:quarkus-maven-plugin:2.15.3.Final:create "-DprojectGroupId=org.acme" "-DprojectArtifactId=google-cloud-functions" "-Dextensions=google-cloud-functions"
 
 Copy invoker for running locally:
-mvn dependency:copy "-Dartifact=com.google.cloud.functions.invoker:java-function-invoker:1.1.1" "-DoutputDirectory=."
+mvnw dependency:copy "-Dartifact=com.google.cloud.functions.invoker:java-function-invoker:1.1.1" "-DoutputDirectory=."
 
 Build:
 ./mvnw install

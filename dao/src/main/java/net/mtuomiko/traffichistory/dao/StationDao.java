@@ -2,23 +2,15 @@ package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityValue;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.PathElement;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
-import com.google.cloud.datastore.Value;
+import com.google.cloud.datastore.LongValue;
 
+import net.mtuomiko.datastore.DatastoreOperations;
+import net.mtuomiko.datastore.StationEntity;
+import net.mtuomiko.datastore.VolumeEntity;
 import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
 import net.mtuomiko.traffichistory.common.model.Station;
 
-import org.apache.commons.collections4.IteratorUtils;
-
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -31,41 +23,32 @@ import io.quarkus.logging.Log;
 
 @Singleton
 public class StationDao {
-    Datastore datastore;
-    KeyFactory stationKeyFactory;
-    Key stationListKey;
+    DatastoreOperations ops;
 
     static final ZoneId ZONE_ID = ZoneId.of("Europe/Helsinki");
-    private static final String stationListKeyString = "stationList";
 
     public StationDao(Datastore datastore) {
-        this.datastore = datastore;
-        this.stationKeyFactory = datastore.newKeyFactory().setKind(StationEntity.KIND);
-        this.stationListKey = datastore.newKeyFactory().setKind(StationListEntity.KIND).newKey(stationListKeyString);
+        this.ops = new DatastoreOperations(datastore);
     }
 
     public List<Station> getStations() {
-        var entity = datastore.get(stationListKey);
+        var stationEntities = ops.getStationEntities();
 
-        if (entity == null) {
-            throw new IllegalStateException("Station list entity not found");
-        }
-
-        var embeddedEntities = entity.<EntityValue>getList(StationListEntity.STATIONS);
-        var stationEntities = embeddedEntities.stream()
-                .map(Value::get)
-                .map(StationEntity::createFrom)
-                .toList();
-
-        return stationEntities.stream().map(StationEntity::toStation).toList();
+        return stationEntities.stream().map(this::toStation).toList();
     }
 
     public Station getStation(Integer stationId) {
-        var entity = datastore.get(stationKey(stationId));
-        if (entity == null) {
-            return null;
-        }
-        return StationEntity.createFrom(entity).toStation();
+        var stationEntity = ops.getStationEntity(stationId);
+
+        return toStation(stationEntity);
+    }
+
+    private Station toStation(StationEntity stationEntity) {
+        return stationEntity == null
+                ? null
+                : new Station(stationEntity.name(), stationEntity.tmsId(),
+                stationEntity.tmsNumber(),
+                stationEntity.latitude(), stationEntity.longitude());
     }
 
     /**
@@ -77,52 +60,46 @@ public class StationDao {
      * @param lastDate
      * @return null padded sorted map of all local dates between firstDate and lastDate (inclusive)
      */
-    public SortedMap<LocalDate, HourlyTraffic> getHourlyVolumes(Integer stationId, LocalDate firstDate,
-                                                                LocalDate lastDate) {
-        var firstTimestamp = localDateToTimeStamp(firstDate);
-        var lastTimestamp = localDateToTimeStamp(lastDate);
-        Query<Entity> query = Query.newEntityQueryBuilder().setKind(VolumeEntity.KIND)
-                .setFilter(CompositeFilter.and(
-                        PropertyFilter.ge(VolumeEntity.DATE, firstTimestamp),
-                        PropertyFilter.le(VolumeEntity.DATE, lastTimestamp),
-                        PropertyFilter.hasAncestor(stationKey(stationId))
-                ))
-                .setOrderBy(OrderBy.asc(VolumeEntity.DATE))
-                .build();
-        QueryResults<Entity> volumeResults = datastore.run(query);
+    public SortedMap<LocalDate, HourlyTraffic> getHourlyVolumes(
+            Integer stationId,
+            LocalDate firstDate,
+            LocalDate lastDate
+    ) {
+        var volumeEntities = ops.getVolumeEntities(stationId, firstDate, lastDate);
 
-        var entities = IteratorUtils.toList(volumeResults);
-        var volumes = entities.stream()
-                .map(VolumeEntity::createFrom)
-                .map(VolumeEntity::toHourlyVolumes)
+        var hourlyTraffics = volumeEntities.stream()
+                .map(this::toHourlyTraffic)
                 .toList();
 
-        return createMap(firstDate, lastDate, volumes);
+        return createMap(firstDate, lastDate, hourlyTraffics);
     }
 
-    public void storeHourlyVolumes(Integer stationId, List<HourlyTraffic> volumesList) {
-        if (volumesList.isEmpty()) {
+    private HourlyTraffic toHourlyTraffic(VolumeEntity volumeEntity) {
+        var date = Instant.ofEpochSecond(volumeEntity.date().getSeconds(), volumeEntity.date().getNanos())
+                .atZone(ZONE_ID)
+                .toLocalDate();
+        var volumesList = volumeEntity.volumes().stream().map(value -> value.get().intValue()).toList();
+        return new HourlyTraffic(date, volumesList);
+    }
+
+    public void storeHourlyTraffic(Integer stationId, List<HourlyTraffic> trafficList) {
+        if (trafficList.isEmpty()) {
             Log.debug("Empty traffic volume list, not storing");
             return;
         }
-        var volumeEntities = volumesList.stream().map(VolumeEntity::createFrom).toList();
+        var volumeEntities = trafficList.stream().map(this::toVolumeEntity).toList();
 
-        var keyFactory = datastore.newKeyFactory().setKind(VolumeEntity.KIND)
-                .addAncestor(PathElement.of(StationEntity.KIND, String.format("station%d", stationId)));
-
-        volumeEntities.forEach(volumeEntity -> {
-            var incompleteKey = keyFactory.newKey();
-            var key = datastore.allocateId(incompleteKey);
-            var entityBuilder = Entity.newBuilder(key);
-            volumeEntity.setPropertiesTo(entityBuilder);
-            var entity = entityBuilder.build();
-            datastore.put(entity);
-        });
+        ops.storeVolumeEntities(stationId, volumeEntities);
     }
 
-    private Timestamp localDateToTimeStamp(LocalDate localDate) {
-        var instant = localDate.atStartOfDay(ZONE_ID).toInstant();
-        return Timestamp.ofTimeSecondsAndNanos(instant.getEpochSecond(), instant.getNano());
+    private VolumeEntity toVolumeEntity(HourlyTraffic hourlyTraffic) {
+        var dateInstant = hourlyTraffic.date().atStartOfDay(ZONE_ID).toInstant();
+        var date = Timestamp.ofTimeSecondsAndNanos(dateInstant.getEpochSecond(), dateInstant.getNano());
+        var longValueList = hourlyTraffic.volumes().stream()
+                // list value indices cannot be disabled on the list itself, only on individual values
+                .map(num -> LongValue.newBuilder(num.longValue()).setExcludeFromIndexes(true).build())
+                .toList();
+        return new VolumeEntity(date, longValueList);
     }
 
     private SortedMap<LocalDate, HourlyTraffic> createMap(
@@ -136,9 +113,5 @@ public class StationDao {
         hourlyVolumes.forEach(volumes -> map.put(volumes.date(), volumes));
 
         return map;
-    }
-
-    private Key stationKey(Integer stationId) {
-        return stationKeyFactory.newKey(String.format("station%d", stationId));
     }
 }

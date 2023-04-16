@@ -12,7 +12,7 @@ COPY --chown=quarkus:quarkus dao/pom.xml /code/dao/pom.xml
 USER quarkus
 WORKDIR /code
 
-RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
+# RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
 
 COPY app/src /code/app/src
 COPY gen/api.yaml /code/gen/api.yaml
@@ -21,4 +21,4 @@ COPY api/src /code/api/src
 COPY svc/src /code/svc/src
 COPY dao/src /code/dao/src
 
-RUN ./mvnw package -Pnative
+COPY --chown=quarkus:quarkus docker/buildscript.sh /code/buildscript.sh

@@ -1,7 +1,6 @@
 package net.mtuomiko.traffichistory.tms;
 
-import net.mtuomiko.traffichistory.StationEntity;
-import net.mtuomiko.traffichistory.UpdateStationsV1;
+import net.mtuomiko.datastore.StationEntity;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.resteasy.plugins.interceptors.AcceptEncodingGZIPFilter;
@@ -14,15 +13,15 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class TmsService {
+public class TmsStationService {
 
-    private static final Logger logger = Logger.getLogger(TmsService.class.getName());
+    private static final Logger logger = Logger.getLogger(TmsStationService.class.getName());
 
     TmsConfig tmsConfig;
 
     TmsStationClient tmsStationClient;
 
-    public TmsService(TmsConfig tmsConfig) {
+    public TmsStationService(TmsConfig tmsConfig) {
         this.tmsStationClient = RestClientBuilder.newBuilder()
                 .baseUri(URI.create(tmsConfig.stationApiUrl()))
                 .register(GZIPDecodingInterceptor.class)

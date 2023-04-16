@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.datastore;
 
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityValue;

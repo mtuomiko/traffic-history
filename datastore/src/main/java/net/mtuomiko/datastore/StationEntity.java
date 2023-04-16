@@ -1,9 +1,8 @@
-package net.mtuomiko.traffichistory.dao;
+package net.mtuomiko.datastore;
 
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
-
-import net.mtuomiko.traffichistory.common.model.Station;
+import com.google.cloud.datastore.LatLng;
 
 public record StationEntity(
         String name,
@@ -18,8 +17,15 @@ public record StationEntity(
     public static final String TMS_NUMBER = "tmsNumber";
     public static final String LOCATION = "location";
 
-    Station toStation() {
-        return new Station(name, tmsId, tmsNumber, latitude, longitude);
+//    Station toStation() {
+//        return new Station(name, tmsId, tmsNumber, latitude, longitude);
+//    }
+
+    Entity.Builder setPropertiesTo(Entity.Builder builder) {
+        return builder.set(NAME, name)
+                .set(TMS_ID, tmsId)
+                .set(TMS_NUMBER, tmsNumber)
+                .set(LOCATION, LatLng.of(latitude, longitude));
     }
 
     static StationEntity createFrom(Entity entity) {

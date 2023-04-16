@@ -3,7 +3,7 @@ traffichistory:
     csv-files-url: 'http://localhost:3333/file/'
   gcloud:
     datastore:
-      auth: 'default'
+      auth: 'none'
       host: 'http://host.docker.internal:8000'
 
 quarkus:
