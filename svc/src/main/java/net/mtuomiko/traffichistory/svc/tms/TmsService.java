@@ -1,6 +1,7 @@
 package net.mtuomiko.traffichistory.svc.tms;
 
 import net.mtuomiko.traffichistory.common.ExternalFailureException;
+import net.mtuomiko.traffichistory.common.NotFoundException;
 import net.mtuomiko.traffichistory.common.model.StationIdentity;
 
 import org.apache.commons.csv.CSVFormat;
@@ -37,6 +38,13 @@ public class TmsService {
     private final CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setDelimiter(';').setHeader(TmsCsvHeader.class)
             .build();
 
+    /**
+     *
+     * @param stationId
+     * @param date
+     * @return list of hourly traffic volumes, empty list if no data is available (404)
+     * @throws ExternalFailureException when reading fails for any other reason than 404 response
+     */
     public List<Integer> getHourlyLAMStatsByIdentityAndDate(StationIdentity stationId, LocalDate date) {
         try (
                 var responseStream = tmsCsvClient.getByFilename(idAndDateToFilename(stationId, date));
@@ -52,6 +60,8 @@ public class TmsService {
             return hourlyLongMapToIntList(countByHour);
         } catch (IOException e) {
             throw new ExternalFailureException("Failed to read external CSV", e);
+        } catch (NotFoundException e) {
+            return Collections.emptyList();
         }
     }
 
@@ -85,7 +95,7 @@ public class TmsService {
     }
 
     /**
-     * Hours not present in countByHour will have zero values in returned list. Long to Integer conversion should be
+     * Hours not present in parameter will have zero values in returned list. Long to Integer conversion should be
      * a non-issue, traffic counts are not even close to the limits.
      *
      * @param countByHour map of found traffic counts by hour, does not need to have each hour present

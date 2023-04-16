@@ -3,5 +3,11 @@ traffichistory:
     csv-files-url: 'http://localhost:3333/file/'
   gcloud:
     datastore:
-      auth: 'none'
+      auth: 'default'
       host: 'http://host.docker.internal:8000'
+
+quarkus:
+  log:
+    category:
+      "net.mtuomiko":
+        level: DEBUG

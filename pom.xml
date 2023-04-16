@@ -30,7 +30,6 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>2.16.6.Final</quarkus.platform.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-<!--    <quarkus.platform.gcloud.services.id>quarkus-google-cloud-services-bom</quarkus.platform.gcloud.services.id>-->
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
     <gcloud.libraries.version>26.12.0</gcloud.libraries.version>
@@ -103,6 +102,12 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
         <version>${apache.commons.csv.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.24.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -34,12 +34,17 @@ public interface TmsCsvClient {
 
     @ClientExceptionMapper(priority = 1)
     static RuntimeException toException(Response response) {
-        if (response.getStatus() == 404) {
+        var statusCode = response.getStatus();
+
+        if (statusCode == 404) {
             return new NotFoundException("CSV file was not found");
         }
-        if (response.getStatus() >= 400 && response.getStatus() <= 500) {
-            return new ExternalFailureException("CSV API request failed");
+        if (statusCode >= 400 && statusCode <= 500) {
+            return new ExternalFailureException(
+                    String.format("CSV API request failed due to response code %d", statusCode)
+            );
         }
+
         return null;
     }
 }

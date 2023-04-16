@@ -27,6 +27,8 @@ import java.util.TreeMap;
 
 import javax.inject.Singleton;
 
+import io.quarkus.logging.Log;
+
 @Singleton
 public class StationDao {
     Datastore datastore;
@@ -44,6 +46,10 @@ public class StationDao {
 
     public List<Station> getStations() {
         var entity = datastore.get(stationListKey);
+
+        if (entity == null) {
+            throw new IllegalStateException("Station list entity not found");
+        }
 
         var embeddedEntities = entity.<EntityValue>getList(StationListEntity.STATIONS);
         var stationEntities = embeddedEntities.stream()
@@ -95,6 +101,10 @@ public class StationDao {
     }
 
     public void storeHourlyVolumes(Integer stationId, List<HourlyTraffic> volumesList) {
+        if (volumesList.isEmpty()) {
+            Log.debug("Empty traffic volume list, not storing");
+            return;
+        }
         var volumeEntities = volumesList.stream().map(VolumeEntity::createFrom).toList();
 
         var keyFactory = datastore.newKeyFactory().setKind(VolumeEntity.KIND)
