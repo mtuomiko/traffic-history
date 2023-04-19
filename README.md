@@ -18,6 +18,11 @@ Datastore
 
 ## Containerized
 
+### JVM
+
+* Package: `.\mvnw.cmd package`
+* Build container: `docker build -f docker/Dockerfile.jvm -t traffichistory-jvm .` 
+
 ### Native image
 
 Quarkus supports GraalVM Native Image which can be used to create native binaries. As the native binaries depend on the host OS, the repository contains also a multistage container build that will produce the final 64-bit Linux compatible containers.
@@ -105,3 +110,19 @@ initialize the cloud environment such as project creation.
 * Push image: `docker push eu.gcr.io/<project_id>/traffichistory-native`
 * Deploy with default settings: `gcloud run deploy <service_name> --image eu.gcr.io/<project_id>/traffichistory-native`
     * Give some service name
+
+### Using JVM image
+
+As above, except package the code before using the JVM-specific Dockerfile instead of the multistage builder.
+* Package: `.\mvnw.cmd package`
+* Build container: `docker build -f docker/Dockerfile.jvm -t traffichistory-jvm .` 
+* Tag it to GCP EU container registry: `docker tag traffichistory-jvm eu.gcr.io/<project_id>/traffichistory-jvm`
+  * Use correct project id
+* Push image: `docker push eu.gcr.io/<project_id>/traffichistory-jvm`
+* Deploy with default settings: `gcloud run deploy <service_name> --image eu.gcr.io/<project_id>/traffichistory-jvm`
+  * Give some service name
+
+### Deploy fat JAR manually to App Engine
+
+* Package to fat JAR `.\mvnw.cmd package "-Dquarkus.package.type=uber-jar"`
+* Deploy `gcloud app deploy --appyaml=app.yaml app/target/app-1.0.0-SNAPSHOT-runner.jar`

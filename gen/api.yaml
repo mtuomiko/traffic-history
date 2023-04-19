@@ -18,7 +18,7 @@ paths:
       operationId: getAllStations
       responses:
         '200':
-          description: successful operation
+          description: Successful operation
           content:
             application/json:
               schema:
@@ -31,7 +31,10 @@ paths:
       tags: [ station ]
       summary: Get hourly traffic volumes on single station
       description: |-
-        Returns single station hourly traffic volumes on selected days. Can select maximum 7 days on single request.
+        Returns single station hourly traffic volumes on selected days. Can select maximum 7 days on single request. 
+        
+        If data is not available for any reason, empty integer array is returned. The data could become available later
+        depending on the cause.
       operationId: getStationTraffic
       parameters:
         - name: stationId
@@ -55,7 +58,7 @@ paths:
             $ref: '#/components/schemas/DateString'
       responses:
         '200':
-          description: successful operation
+          description: Successful operation
           content:
             application/json:
               schema:
@@ -72,23 +75,39 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Station'
+          example:
+            - name: 'vt7_Virolahti_Virojoki'
+              tmsId: 23307
+              tmsNumber: 307
+              latitude: 60.608743
+              longitude: 27.676303
+            - name: 'vt7_Virolahti_Ravijoki'
+              tmsId: 23308
+              tmsNumber: 308
+              latitude: 60.596463
+              longitude: 27.475294
     Station:
       type: object
       properties:
         name:
           type: string
+          example: 'vt7_Virolahti_Virojoki'
         tmsId:
           type: integer
           format: int32
+          example: 23307
         tmsNumber:
           type: integer
           format: int32
+          example: 307
         latitude:
           type: number
           format: double
+          example: 60.608743
         longitude:
           type: number
           format: double
+          example: 27.676303
     TrafficVolumeResponse:
       type: object
       properties:
@@ -96,16 +115,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SingleDayTrafficVolume'
+          example:
+            - date: '2022-01-15'
+              hourlyVolumes: []
+            - date: '2022-01-16'
+              hourlyVolumes: [252,198,178,174,324,1373,3865,4185,3675,2773,2524,2660,2663,3094,3897,4946,4517,3442,2649,1949,1686,1275,820,408]
+            - date: '2022-01-17'
+              hourlyVolumes: []
+            - date: '2022-01-18'
+              hourlyVolumes: [262,200,173,202,350,1412,3888,4249,3725,2862,2317,2535,2750,3287,3975,5145,4675,3561,2722,2061,1704,1284,833,427]
     SingleDayTrafficVolume:
       type: object
+      description: 'Total traffic volumes on a single day for each hour beginning at 00:00.'
       properties:
         date:
-          $ref: DateString
+          $ref: '#/components/schemas/DateString'
         hourlyVolumes:
           type: array
           items:
             type: integer
             format: int32
+          example: [12,2,7,5,4,1,3,2,12,15,26,32,46,62,55,54,48,35,32,29,10,8,8,4]
     DateString:
       type: string
       format: date
@@ -115,6 +145,7 @@ components:
       properties:
         status:
           type: integer
+          example: 400
         message:
           type: string
         errors:
