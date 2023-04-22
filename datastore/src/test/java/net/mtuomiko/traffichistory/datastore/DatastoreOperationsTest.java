@@ -118,6 +118,27 @@ public class DatastoreOperationsTest {
     }
 
     @Test
+    void upsertVolumeEntities_replacesExistingEntitiesIfDateAndParentStationMatch() {
+        emptyDatastore();
+
+        var trafficList1 = IntStream.rangeClosed(1, 24).asLongStream().mapToObj(LongValue::of).toList();
+        var trafficList2 = IntStream.rangeClosed(1, 24).asLongStream().mapToObj(LongValue::of)
+                .collect(Collectors.toList());
+        Collections.reverse(trafficList2);
+        var localDate = LocalDate.parse("2000-01-01");
+
+        var volumeEntity1 = new VolumeEntity(localDateToTimeStamp(localDate), trafficList1);
+        operations.upsertVolumeEntities(10001, List.of(volumeEntity1));
+
+        var volumeEntity2 = new VolumeEntity(localDateToTimeStamp(localDate), trafficList2);
+        operations.upsertVolumeEntities(10001, List.of(volumeEntity2));
+
+        var result = operations.getVolumeEntities(10001, localDate, localDate);
+
+        assertThat(result).containsExactly(volumeEntity2);
+    }
+
+    @Test
     void getVolumeEntities_returnsEntitiesOnlyForSelectedStation() {
         emptyDatastore();
 
@@ -132,6 +153,7 @@ public class DatastoreOperationsTest {
         operations.upsertVolumeEntities(10002, List.of(volumeEntity2));
 
         var result = operations.getVolumeEntities(10001, localDate, localDate);
+
         assertThat(result).containsExactly(volumeEntity1);
     }
 
