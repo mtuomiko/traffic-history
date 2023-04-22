@@ -1,10 +1,11 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.traffichistory.function;
 
 import com.google.cloud.datastore.Datastore;
 
-import net.mtuomiko.datastore.DatastoreOperations;
-import net.mtuomiko.datastore.StationEntity;
+import net.mtuomiko.traffichistory.datastore.DatastoreOperations;
+import net.mtuomiko.traffichistory.datastore.StationEntity;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -14,10 +15,11 @@ import javax.inject.Singleton;
 public class StationDao {
 
     private static final Logger logger = Logger.getLogger(StationDao.class.getName());
-    DatastoreOperations operations;
+    private static final ZoneId ZONE_ID = ZoneId.of("Europe/Helsinki");
+    private final DatastoreOperations operations;
 
     public StationDao(Datastore datastore) {
-        this.operations = new DatastoreOperations(datastore);
+        this.operations = new DatastoreOperations(datastore, ZONE_ID);
     }
 
     public void upsertStations(List<StationEntity> stationEntities) {

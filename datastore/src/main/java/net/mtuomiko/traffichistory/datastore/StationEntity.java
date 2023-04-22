@@ -1,8 +1,9 @@
-package net.mtuomiko.datastore;
+package net.mtuomiko.traffichistory.datastore;
 
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.LatLng;
+import com.google.cloud.datastore.PathElement;
 
 public record StationEntity(
         String name,
@@ -17,9 +18,7 @@ public record StationEntity(
     public static final String TMS_NUMBER = "tmsNumber";
     public static final String LOCATION = "location";
 
-//    Station toStation() {
-//        return new Station(name, tmsId, tmsNumber, latitude, longitude);
-//    }
+    private static final String KEY_FORMAT = "station%d";
 
     Entity.Builder setPropertiesTo(Entity.Builder builder) {
         return builder.set(NAME, name)
@@ -38,6 +37,7 @@ public record StationEntity(
                 location.getLongitude()
         );
     }
+
     static StationEntity createFrom(FullEntity<?> fullEntity) {
         var location = fullEntity.getLatLng(LOCATION);
         return new StationEntity(
@@ -47,5 +47,17 @@ public record StationEntity(
                 location.getLatitude(),
                 location.getLongitude()
         );
+    }
+
+    String getKeyString() {
+        return getKeyString(tmsId);
+    }
+
+    static String getKeyString(int stationId) {
+        return String.format(KEY_FORMAT, stationId);
+    }
+
+    static PathElement getAsAncestor(int stationId) {
+        return PathElement.of(KIND, getKeyString(stationId));
     }
 }

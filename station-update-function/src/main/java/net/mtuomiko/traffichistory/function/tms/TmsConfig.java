@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory.tms;
+package net.mtuomiko.traffichistory.function.tms;
 
 import io.smallrye.config.ConfigMapping;
 

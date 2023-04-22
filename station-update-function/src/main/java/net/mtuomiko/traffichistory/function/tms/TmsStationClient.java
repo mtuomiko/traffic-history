@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory.tms;
+package net.mtuomiko.traffichistory.function.tms;
 
 import org.jboss.resteasy.annotations.GZIP;
 
@@ -13,5 +13,5 @@ public interface TmsStationClient {
     @GZIP
     @GET
     @Produces("application/json")
-    StationResponse getStations();
+    TmsStationResponse getStations();
 }

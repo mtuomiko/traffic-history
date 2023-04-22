@@ -9,4 +9,4 @@ traffichistory:
 
 quarkus:
   google-cloud-functions:
-    function: updateStationsV1
+    function: updateStations

@@ -1,6 +1,6 @@
-package net.mtuomiko.traffichistory.tms;
+package net.mtuomiko.traffichistory.function.tms;
 
-import net.mtuomiko.datastore.StationEntity;
+import net.mtuomiko.traffichistory.datastore.StationEntity;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.resteasy.plugins.interceptors.AcceptEncodingGZIPFilter;

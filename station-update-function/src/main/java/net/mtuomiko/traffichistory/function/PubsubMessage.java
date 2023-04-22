@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.traffichistory.function;
 
 /**
  * Dummy holder for incoming PubSub message. Not actually used since the function doesn't interpret the contents.

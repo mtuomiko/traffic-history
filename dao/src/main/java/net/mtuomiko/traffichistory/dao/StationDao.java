@@ -4,11 +4,11 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.LongValue;
 
-import net.mtuomiko.datastore.DatastoreOperations;
-import net.mtuomiko.datastore.StationEntity;
-import net.mtuomiko.datastore.VolumeEntity;
 import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
 import net.mtuomiko.traffichistory.common.model.Station;
+import net.mtuomiko.traffichistory.datastore.DatastoreOperations;
+import net.mtuomiko.traffichistory.datastore.StationEntity;
+import net.mtuomiko.traffichistory.datastore.VolumeEntity;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -28,7 +28,7 @@ public class StationDao {
     static final ZoneId ZONE_ID = ZoneId.of("Europe/Helsinki");
 
     public StationDao(Datastore datastore) {
-        this.ops = new DatastoreOperations(datastore);
+        this.ops = new DatastoreOperations(datastore, ZONE_ID);
     }
 
     public List<Station> getStations() {
@@ -89,7 +89,7 @@ public class StationDao {
         }
         var volumeEntities = trafficList.stream().map(this::toVolumeEntity).toList();
 
-        ops.storeVolumeEntities(stationId, volumeEntities);
+        ops.upsertVolumeEntities(stationId, volumeEntities);
     }
 
     private VolumeEntity toVolumeEntity(HourlyTraffic hourlyTraffic) {

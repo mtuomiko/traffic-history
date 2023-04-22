@@ -1,9 +1,9 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.traffichistory.function;
 
 import com.google.cloud.functions.BackgroundFunction;
 import com.google.cloud.functions.Context;
 
-import net.mtuomiko.traffichistory.tms.TmsStationService;
+import net.mtuomiko.traffichistory.function.tms.TmsStationService;
 
 import java.util.logging.Logger;
 
@@ -13,23 +13,23 @@ import javax.inject.Named;
 /**
  * Main entrypoint to the function. Will be triggered externally.
  */
-@Named("updateStationsV1")
+@Named("updateStations")
 @ApplicationScoped
-public class UpdateStationsV1 implements BackgroundFunction<PubsubMessage> {
+public class UpdateStations implements BackgroundFunction<PubsubMessage> {
 
     private TmsStationService tmsStationService;
     private StationDao stationDao;
 
-    public UpdateStationsV1(TmsStationService tmsStationService, StationDao stationDao) {
+    public UpdateStations(TmsStationService tmsStationService, StationDao stationDao) {
         this.tmsStationService = tmsStationService;
         this.stationDao = stationDao;
     }
 
-    private static final Logger logger = Logger.getLogger(UpdateStationsV1.class.getName());
+    private static final Logger logger = Logger.getLogger(UpdateStations.class.getName());
 
     @Override
     public void accept(PubsubMessage pubsubMessage, Context context) {
-        logger.info("UpdateStationsV1 triggered");
+        logger.info("UpdateStations triggered");
 
         var stations = tmsStationService.fetchStations();
         stationDao.upsertStations(stations);

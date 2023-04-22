@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.traffichistory.function;
 
 import java.util.Optional;
 

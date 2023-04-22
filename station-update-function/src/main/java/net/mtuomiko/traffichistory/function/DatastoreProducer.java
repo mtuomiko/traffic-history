@@ -1,4 +1,4 @@
-package net.mtuomiko.traffichistory;
+package net.mtuomiko.traffichistory.function;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;

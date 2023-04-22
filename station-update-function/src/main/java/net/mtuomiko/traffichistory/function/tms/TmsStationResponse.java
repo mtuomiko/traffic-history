@@ -1,8 +1,8 @@
-package net.mtuomiko.traffichistory.tms;
+package net.mtuomiko.traffichistory.function.tms;
 
 import java.util.List;
 
-public record StationResponse(List<Feature> features) {
+public record TmsStationResponse(List<Feature> features) {
 
     public record Feature(
             Geometry geometry,

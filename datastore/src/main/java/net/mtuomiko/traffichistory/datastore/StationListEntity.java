@@ -1,4 +1,4 @@
-package net.mtuomiko.datastore;
+package net.mtuomiko.traffichistory.datastore;
 
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityValue;
@@ -9,6 +9,7 @@ public record StationListEntity(
         List<EntityValue> stations
 ) {
     public static final String KIND = "StationList";
+    public static final String KEY_STRING = "stationList";
     public static final String STATIONS = "stations";
 
     Entity.Builder setPropertiesTo(Entity.Builder builder) {

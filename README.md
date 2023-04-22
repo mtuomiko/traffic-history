@@ -31,7 +31,7 @@ Docker commands for multi-stage native build without a local GraalVM installatio
 
 * Create the builder image: `docker build -f docker/Dockerfile.multistage.builder -t traffichistory-native-builder .`
 * Run native build: `docker run --entrypoint /code/buildscript.sh -it --rm -v "C:/Users/mtuomiko/.m2:/home/quarkus/.m2" -v "$(pwd)/target:/code/app/target" traffichistory-native-builder`
-  * Entrypoint replacement is for delaying the dependency fetching to runtime, so we can mount a local m2 folder. The m2 folder mount is not required. The file access is somewhat slow at least on Windows, but we avoid downloading the dependencies everytime. 
+  * Entrypoint replacement is for delaying the dependency fetching to runtime, so we can mount a local m2 folder. The mount is not required. The file access is somewhat slow at least on Windows, but we avoid downloading the dependencies everytime.
 * Create runner image `docker build -f docker/Dockerfile.multistage.runner -t traffichistory-native .`
 * Debug builder contents: `docker run --rm -it --entrypoint /bin/bash traffichistory-native-builder`
   * `-u root` can be helpful
@@ -108,7 +108,7 @@ initialize the cloud environment such as project creation.
 * Tag it to GCP EU container registry: `docker tag traffichistory-native eu.gcr.io/<project_id>/traffichistory-native`
     * Use correct project id
 * Push image: `docker push eu.gcr.io/<project_id>/traffichistory-native`
-* Deploy with default settings: `gcloud run deploy <service_name> --image eu.gcr.io/<project_id>/traffichistory-native`
+* Deploy with default settings: `gcloud run deploy <service_name> --image eu.gcr.io/<project_id>/traffichistory-native --region=europe-west3`
     * Give some service name
 
 ### Using JVM image

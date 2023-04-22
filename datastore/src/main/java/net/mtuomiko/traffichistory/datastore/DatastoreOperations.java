@@ -1,4 +1,4 @@
-package net.mtuomiko.datastore;
+package net.mtuomiko.traffichistory.datastore;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
@@ -6,7 +6,6 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityValue;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
@@ -22,17 +21,19 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 public class DatastoreOperations {
-    Datastore datastore;
-    KeyFactory stationKeyFactory;
-    Key stationListKey;
+    private final Datastore datastore;
+    private final KeyFactory stationKeyFactory;
+    private final Key stationListKey;
+    private final ZoneId zoneId;
 
-    static final ZoneId ZONE_ID = ZoneId.of("Europe/Helsinki");
-    private static final String stationListKeyString = "stationList";
+    private static final int STATION_BATCH_SIZE = 100;
 
-    public DatastoreOperations(Datastore datastore) {
+    public DatastoreOperations(Datastore datastore, ZoneId zoneId) {
         this.datastore = datastore;
         this.stationKeyFactory = datastore.newKeyFactory().setKind(StationEntity.KIND);
-        this.stationListKey = datastore.newKeyFactory().setKind(StationListEntity.KIND).newKey(stationListKeyString);
+        this.stationListKey = datastore.newKeyFactory().setKind(StationListEntity.KIND)
+                .newKey(StationListEntity.KEY_STRING);
+        this.zoneId = zoneId;
     }
 
     public List<StationEntity> getStationEntities() {
@@ -65,11 +66,11 @@ public class DatastoreOperations {
 
         Query<Entity> query = Query.newEntityQueryBuilder().setKind(VolumeEntity.KIND)
                 .setFilter(StructuredQuery.CompositeFilter.and(
-                        StructuredQuery.PropertyFilter.ge(VolumeEntity.DATE, firstTimestamp),
-                        StructuredQuery.PropertyFilter.le(VolumeEntity.DATE, lastTimestamp),
+                        StructuredQuery.PropertyFilter.ge(VolumeEntity.DATE_PROPERTY, firstTimestamp),
+                        StructuredQuery.PropertyFilter.le(VolumeEntity.DATE_PROPERTY, lastTimestamp),
                         StructuredQuery.PropertyFilter.hasAncestor(stationKey(stationId))
                 ))
-                .setOrderBy(StructuredQuery.OrderBy.asc(VolumeEntity.DATE))
+                .setOrderBy(StructuredQuery.OrderBy.asc(VolumeEntity.DATE_PROPERTY))
                 .build();
         QueryResults<Entity> volumeResults = datastore.run(query);
 
@@ -81,14 +82,14 @@ public class DatastoreOperations {
         return volumeEntities;
     }
 
-    public void storeVolumeEntities(Integer stationId, List<VolumeEntity> volumeEntities) {
+    public void upsertVolumeEntities(Integer stationId, List<VolumeEntity> volumeEntities) {
         var keyFactory = datastore.newKeyFactory().setKind(VolumeEntity.KIND)
-                .addAncestor(PathElement.of(StationEntity.KIND, String.format("station%d", stationId)));
+                .addAncestor(StationEntity.getAsAncestor(stationId));
 
         var batch = datastore.newBatch();
         volumeEntities.forEach(volumeEntity -> {
-            var incompleteKey = keyFactory.newKey();
-            var entityBuilder = Entity.newBuilder(incompleteKey);
+            var key = keyFactory.newKey(volumeEntity.getKeyString(zoneId));
+            var entityBuilder = Entity.newBuilder(key);
             volumeEntity.setPropertiesTo(entityBuilder);
             var entity = entityBuilder.build();
             batch.put(entity);
@@ -99,20 +100,19 @@ public class DatastoreOperations {
 
     public void upsertStationEntities(List<StationEntity> stationEntities) {
         var entities = stationEntities.stream().map(stationEntity -> {
-            var stationKey = stationKeyFactory.newKey(String.format("station%d", stationEntity.tmsId()));
+            var stationKey = stationKey(stationEntity);
             var entityBuilder = Entity.newBuilder(stationKey);
             stationEntity.setPropertiesTo(entityBuilder);
             return entityBuilder.build();
         }).toList();
 
-        var chunks = ListUtils.partition(entities, 100);
+        var chunks = ListUtils.partition(entities, STATION_BATCH_SIZE);
         chunks.forEach(chunk -> {
             var batch = datastore.newBatch();
             chunk.forEach(batch::put);
             batch.submit();
         });
 
-        var stationListKey = datastore.newKeyFactory().setKind(StationListEntity.KIND).newKey(stationListKeyString);
         var stationListEntity = new StationListEntity(entities.stream().map(EntityValue::of).toList());
         var stationListEntityBuilder = Entity.newBuilder(stationListKey);
         stationListEntity.setPropertiesTo(stationListEntityBuilder);
@@ -120,11 +120,15 @@ public class DatastoreOperations {
     }
 
     private Key stationKey(Integer stationId) {
-        return stationKeyFactory.newKey(String.format("station%d", stationId));
+        return stationKeyFactory.newKey(StationEntity.getKeyString(stationId));
+    }
+
+    private Key stationKey(StationEntity stationEntity) {
+        return stationKeyFactory.newKey(stationEntity.getKeyString());
     }
 
     private Timestamp localDateToTimeStamp(LocalDate localDate) {
-        var instant = localDate.atStartOfDay(ZONE_ID).toInstant();
+        var instant = localDate.atStartOfDay(zoneId).toInstant();
         return Timestamp.ofTimeSecondsAndNanos(instant.getEpochSecond(), instant.getNano());
     }
 }

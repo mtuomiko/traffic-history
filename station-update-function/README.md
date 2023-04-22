@@ -11,10 +11,10 @@ Copy invoker for running locally:
 mvnw dependency:copy "-Dartifact=com.google.cloud.functions.invoker:java-function-invoker:1.1.1" "-DoutputDirectory=."
 
 Build:
-./mvnw install
+`./mvnw install`
 
-Run V1 function (define function also in properties):
-java -jar java-function-invoker-1.1.1.jar --classpath target/station-update-function-1.0.0-SNAPSHOT-runner.jar --target io.quarkus.gcp.functions.QuarkusBackgroundFunction
+Run function (define function also in properties):
+`java -jar java-function-invoker-1.1.1.jar --classpath target/station-update-function-1.0.0-SNAPSHOT-runner.jar --target io.quarkus.gcp.functions.QuarkusBackgroundFunction`
 
 Deploy:
 gcloud functions deploy upsert-stations --region=europe-west3 --entry-point=io.quarkus.gcp.functions.QuarkusBackgroundFunction --runtime=java17 --source=target/deployment --trigger-topic=station-upsert-topic
