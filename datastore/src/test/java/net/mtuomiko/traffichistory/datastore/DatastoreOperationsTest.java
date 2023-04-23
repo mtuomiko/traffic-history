@@ -1,6 +1,7 @@
 package net.mtuomiko.traffichistory.datastore;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
@@ -66,6 +67,17 @@ public class DatastoreOperationsTest {
         assertThat(result).containsExactlyInAnyOrderElementsOf(stations);
     }
 
+    @Test
+    void noStationList_getStationEntities_throws() {
+        emptyDatastore();
+
+        Throwable thrown = catchThrowable(() -> {
+            operations.getStationEntities();
+        });
+
+        assertThat(thrown).isInstanceOf(IllegalStateException.class);
+        assertThat(thrown).hasMessageContaining("Station list entity not found");
+    }
 
     @Test
     void givenConflictingIds_upsertStationEntities_replacesStationEntities() {
@@ -174,6 +186,38 @@ public class DatastoreOperationsTest {
 
         var result = operations.getVolumeEntities(10001, localDate2, localDate2);
         assertThat(result).containsExactly(volumeEntity2);
+    }
+
+    @Test
+    void noExistingEntities_getVolumeEntities_returnsEmptyList() {
+        emptyDatastore();
+
+        var trafficList1 = IntStream.rangeClosed(1, 24).asLongStream().mapToObj(LongValue::of).toList();
+        var localDate1 = LocalDate.parse("2000-01-01");
+        var volumeEntity1 = new VolumeEntity(localDateToTimeStamp(localDate1), trafficList1);
+        operations.upsertVolumeEntities(10001, List.of(volumeEntity1));
+
+        var result = operations.getVolumeEntities(10002, localDate1, localDate1);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void noExistingEntitiesInBetweenDates_getVolumeEntities_returnsExistingEntities() {
+        emptyDatastore();
+
+        var trafficList1 = IntStream.rangeClosed(1, 24).asLongStream().mapToObj(LongValue::of).toList();
+        var trafficList2 = IntStream.rangeClosed(1, 24).asLongStream().mapToObj(LongValue::of)
+                .collect(Collectors.toList());
+        Collections.reverse(trafficList2);
+        var localDate1 = LocalDate.parse("2000-01-01");
+        var localDate2 = LocalDate.parse("2000-01-03");
+        var volumeEntity1 = new VolumeEntity(localDateToTimeStamp(localDate1), trafficList1);
+        var volumeEntity2 = new VolumeEntity(localDateToTimeStamp(localDate2), trafficList2);
+        operations.upsertVolumeEntities(10001, List.of(volumeEntity1));
+        operations.upsertVolumeEntities(10001, List.of(volumeEntity2));
+
+        var result = operations.getVolumeEntities(10001, localDate1, localDate2);
+        assertThat(result).containsExactlyInAnyOrderElementsOf(List.of(volumeEntity1, volumeEntity2));
     }
 
     private Timestamp localDateToTimeStamp(LocalDate localDate) {

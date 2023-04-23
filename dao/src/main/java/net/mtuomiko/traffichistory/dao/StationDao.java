@@ -2,8 +2,10 @@ package net.mtuomiko.traffichistory.dao;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreException;
 import com.google.cloud.datastore.LongValue;
 
+import net.mtuomiko.traffichistory.common.ExternalFailureException;
 import net.mtuomiko.traffichistory.common.model.HourlyTraffic;
 import net.mtuomiko.traffichistory.common.model.Station;
 import net.mtuomiko.traffichistory.datastore.DatastoreOperations;
@@ -23,24 +25,36 @@ import io.quarkus.logging.Log;
 
 @Singleton
 public class StationDao {
-    DatastoreOperations ops;
+    DatastoreOperations operations;
 
     static final ZoneId ZONE_ID = ZoneId.of("Europe/Helsinki");
 
     public StationDao(Datastore datastore) {
-        this.ops = new DatastoreOperations(datastore, ZONE_ID);
+        try {
+            this.operations = new DatastoreOperations(datastore, ZONE_ID);
+        } catch (DatastoreException e) {
+            throw wrapDatastoreException(e);
+        }
     }
 
     public List<Station> getStations() {
-        var stationEntities = ops.getStationEntities();
+        try {
+            var stationEntities = operations.getStationEntities();
 
-        return stationEntities.stream().map(this::toStation).toList();
+            return stationEntities.stream().map(this::toStation).toList();
+        } catch (DatastoreException e) {
+            throw wrapDatastoreException(e);
+        }
     }
 
     public Station getStation(Integer stationId) {
-        var stationEntity = ops.getStationEntity(stationId);
+        try {
+            var stationEntity = operations.getStationEntity(stationId);
 
-        return toStation(stationEntity);
+            return toStation(stationEntity);
+        } catch (DatastoreException e) {
+            throw wrapDatastoreException(e);
+        }
     }
 
     private Station toStation(StationEntity stationEntity) {
@@ -65,13 +79,17 @@ public class StationDao {
             LocalDate firstDate,
             LocalDate lastDate
     ) {
-        var volumeEntities = ops.getVolumeEntities(stationId, firstDate, lastDate);
+        try {
+            var volumeEntities = operations.getVolumeEntities(stationId, firstDate, lastDate);
 
-        var hourlyTraffics = volumeEntities.stream()
-                .map(this::toHourlyTraffic)
-                .toList();
+            var hourlyTraffics = volumeEntities.stream()
+                    .map(this::toHourlyTraffic)
+                    .toList();
 
-        return createMap(firstDate, lastDate, hourlyTraffics);
+            return createMap(firstDate, lastDate, hourlyTraffics);
+        } catch (DatastoreException e) {
+            throw wrapDatastoreException(e);
+        }
     }
 
     private HourlyTraffic toHourlyTraffic(VolumeEntity volumeEntity) {
@@ -83,13 +101,17 @@ public class StationDao {
     }
 
     public void storeHourlyTraffic(Integer stationId, List<HourlyTraffic> trafficList) {
-        if (trafficList.isEmpty()) {
-            Log.debug("Empty traffic volume list, not storing");
-            return;
-        }
-        var volumeEntities = trafficList.stream().map(this::toVolumeEntity).toList();
+        try {
+            if (trafficList.isEmpty()) {
+                Log.debug("Empty traffic volume list, not storing");
+                return;
+            }
+            var volumeEntities = trafficList.stream().map(this::toVolumeEntity).toList();
 
-        ops.upsertVolumeEntities(stationId, volumeEntities);
+            operations.upsertVolumeEntities(stationId, volumeEntities);
+        } catch (DatastoreException e) {
+            wrapDatastoreException(e);
+        }
     }
 
     private VolumeEntity toVolumeEntity(HourlyTraffic hourlyTraffic) {
@@ -113,5 +135,9 @@ public class StationDao {
         hourlyVolumes.forEach(volumes -> map.put(volumes.date(), volumes));
 
         return map;
+    }
+
+    private ExternalFailureException wrapDatastoreException(DatastoreException e) {
+        return new ExternalFailureException(String.format("Issue with Datastore: %s", e.getReason()), e);
     }
 }
