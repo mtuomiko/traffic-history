@@ -12,15 +12,19 @@ class Target:
         self.url = url
 
 
-minimum_delay_seconds = 3600
+minimum_delay_seconds = 4400
 maximum_random_increase = 900
 results_filename = "cold_start_results.csv"
 targets = [
-    Target("native", "https://traffichistoryapi-uifnht7hhq-ey.a.run.app/health"),
-    Target("jvm", "https://traffichistoryapi-jvm-uifnht7hhq-ey.a.run.app/health"),
-    Target("temurin", "https://traffichistoryapi-temurin-uifnht7hhq-ey.a.run.app/health"),
-    Target("app-engine", "https://traffic-history-376700.ey.r.appspot.com/health")
+    Target("native", "https://traffichistoryapi-uifnht7hhq-ey.a.run.app"),
+    Target("jvm", "https://traffichistoryapi-jvm-uifnht7hhq-ey.a.run.app"),
+    Target("temurin", "https://traffichistoryapi-temurin-uifnht7hhq-ey.a.run.app"),
+    Target("app-engine", "https://traffic-history-376700.ey.r.appspot.com")
 ]
+endpoint_health = "/health"
+endpoint_stations = "/station"
+target_endpoint = endpoint_health
+
 
 
 def get_delay():
@@ -49,7 +53,7 @@ def write_to_csv(results: dict[str, str]):
 
 def measure_all_response_times():
     for target in targets:
-        response = requests.get(target.url)
+        response = requests.get(f'{target.url}{target_endpoint}')
         yield (target.name, response.elapsed)
 
 
@@ -62,11 +66,12 @@ def measure():
 
 
 if __name__ == "__main__":
-    print("Starting cold start measurements")
+    print(f'Starting cold start measurements for "{target_endpoint}" endpoints')
     measure()
 
     while True:
         delay = get_delay()
-        print(f'Waiting for {delay} seconds')
+        next_run_time = datetime.datetime.now() + datetime.timedelta(0, delay)
+        print(f'Waiting for {delay} seconds. Next run at {next_run_time.strftime("%Y-%m-%d%H:%M:%S")}')
         time.sleep(delay)
         measure()
